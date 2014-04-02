@@ -6,7 +6,6 @@ import osd
 import numpy as np
 import datetime
 
-
 flight_data = np.genfromtxt('flightdata.csv', delimiter=',', names=True)
 
 screen_width = 1280

@@ -1,11 +1,10 @@
 #!/usr/bin/python
 from __future__ import absolute_import, division, print_function, unicode_literals
-from numpy.lib.function_base import select
 
 import pi3d
 
 
-arialFont = pi3d.Font("../tools/fonts/FreeMonoBoldOblique.ttf", (255, 255, 255, 255))
+arialFont = pi3d.Font("tools/fonts/FreeMonoBoldOblique.ttf", (255, 255, 255, 255))
 
 green = pi3d.Texture("green.png")
 
@@ -15,7 +14,7 @@ class Display:
     def __init__(self, h, w):
         self.width = w
         self.height = h
-        self.pi3d_display = pi3d.Display.create(h=h, w=w, x=w, y=h, frames_per_second=2)
+        self.pi3d_display = pi3d.Display.create(h=h, w=w, x=w, y=h, frames_per_second=5)
         self.pi3d_display.set_background(0, 0, 0, 0)
         self.drawables = list()
         
