@@ -3,10 +3,9 @@ from __future__ import division, print_function, unicode_literals
 
 import pi3d
 import osd
-import numpy as np
 import datetime
 
-flight_data = np.genfromtxt('flightdata.csv', delimiter=',', names=True)
+#flight_data = np.genfromtxt('flightdata.csv', delimiter=',', names=True)
 
 screen_width = 1280
 screen_height = 720
@@ -47,32 +46,32 @@ speed_ruler = osd.Ruler(d, xpos=speed_x, ypos=speed_y, length=500, width=20, ran
 mykeys = pi3d.Keyboard()
 
 i = 0
-data = flight_data[i]
+#data = flight_data[i]
 
 # Display scene
 while d.pi3d_display.loop_running():
 
-    altitude.set_text(str(data['altitude']))
-    speed.set_text(str(data['r_speed']))
-    time.set_text(datetime.datetime.fromtimestamp(data['time']/1000).strftime('%Y-%m-%d %H:%M:%S'))
+    altitude.set_text(str(i))
+    speed.set_text(str(i))
+    time.set_text(datetime.datetime.fromtimestamp(i/1000).strftime('%Y-%m-%d %H:%M:%S'))
 
-    gps_longitude.set_text(str(data['gps_coord_long']) + "E")
-    gps_latitude.set_text(str(data['gps_coord_lat']) + "N")
+    gps_longitude.set_text(str(i) + "E")
+    gps_latitude.set_text(str(i) + "N")
 
-    horizon.set_rotation(data['roll'])
+    horizon.set_rotation(i)
 
-    altitude_ruler.set_value(data['altitude'])
-    speed_ruler.set_value(data['r_speed'])
+    altitude_ruler.set_value(i)
+    speed_ruler.set_value(i)
 
     d.draw()
 
     i += 1
-    data = flight_data[i]
+    #data = flight_data[i]
 
     # Exit control
     k = mykeys.read()
-    if k >-1:
-        if k==27:
+    if k >-1 or i>200:
+        if k==27 or i>200:
             mykeys.close()
             d.destroy()
             break
