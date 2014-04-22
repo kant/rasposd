@@ -12,7 +12,7 @@ import position.IMURecorder as IMURecorder
 import camera.VideoRecorder as VideoRecorder
 
 
-directory = "record_" + str(time.time()) + "_" + uuid.uuid1() + "/"
+directory = "record_" + str(time.time()) + "_" + str(uuid.uuid1()) + "/"
 
 
 if not os.path.exists(directory):
