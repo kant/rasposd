@@ -27,7 +27,6 @@ class ImuRecorder(threading.Thread):
             "mesure_time",
             "pitch", "roll", "yaw",
             "gyro_scaled_x", "gyro_scaled_y", "gyro_scaled_z",
-            "accel_raw_x", "accel_raw_y", "accel_raw_z",
             "accel_scaled_x", "accel_scaled_y", "accel_scaled_z",
             "temperature", "pressure"
         ])

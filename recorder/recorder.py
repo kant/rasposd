@@ -1,6 +1,7 @@
 import time
 import os
 import sys
+import uuid
 
 DOSSIER_COURRANT = os.path.dirname(os.path.abspath(__file__))
 DOSSIER_PARENT = os.path.dirname(DOSSIER_COURRANT)
@@ -11,7 +12,7 @@ import position.IMURecorder as IMURecorder
 import camera.VideoRecorder as VideoRecorder
 
 
-directory = "record_" + str(time.time()) + "/"
+directory = "record_" + str(time.time()) + "_" + uuid.uuid1() + "/"
 
 
 if not os.path.exists(directory):
