@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 import smbus
 import time
+import sys
+import os
+
+DOSSIER_COURRANT = os.path.dirname(os.path.abspath(__file__))
+DOSSIER_PARENT = os.path.dirname(DOSSIER_COURRANT)
+sys.path.append(DOSSIER_PARENT)
 
 #Local import
-from recorder.position.bitify.python.utils.i2cutils import i2c_raspberry_pi_bus_number
+from i2cutils import i2c_raspberry_pi_bus_number
 
 bus = smbus.SMBus(i2c_raspberry_pi_bus_number())
 address = 0x1e
