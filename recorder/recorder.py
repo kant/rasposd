@@ -18,14 +18,21 @@ if not os.path.exists(directory):
     os.makedirs(directory)
 
 
-#gps = GPSRecorder.GpsRecorder(directory)
 imu = IMURecorder.ImuRecorder(directory)
-#video = VideoRecorder.VideoRecorder(directory + "video.h264")
+gps = GPSRecorder.GpsRecorder(directory)
+video = VideoRecorder.VideoRecorder(directory + "video.h264")
 
 try:
+    print "Starting IMU recorder"
     imu.start()
-    #gps.start()
-    #video.start()
+    print "Starting GPS recorder"
+    gps.start()
+    print "Starting video recorder"
+    video.start()
+
+    print "Now recording..."
+    while True:
+        time.sleep(5)
 
 #Ctrl C
 except KeyboardInterrupt:
@@ -38,15 +45,15 @@ except:
 
 finally:
     print "Stopping recorders"
-    #video.stop()
-    #gps.stop()
+    video.stop()
+    gps.stop()
     imu.stop()
 
     #wait for the tread to finish
     print "- Wait for video recorder"
-    #video.join()
+    video.join()
     print "- Wait for gps recorder"
-    #gps.join()
+    gps.join()
     print "- Wait for imu recorder"
     imu.join()
 
