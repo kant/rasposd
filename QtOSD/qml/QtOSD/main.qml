@@ -5,13 +5,18 @@ Rectangle {
     width: 1280
     height: 720
 
-    property int altitude: 0
-    property int yaw: 0
-    property int pitch: 0
-    property int roll: 0
-    property int speed: 0
+    property double altitude: 0
+    property double yaw: 0
+    property double pitch: 0
+    property double roll: 0
+    property double speed: 0
+
+    property double roll_max: 2.5883750748
+    property double roll_min: -3.7320618556
+
 
     property int font_size: 30
+
 
     color: "transparent"
 
@@ -23,8 +28,6 @@ Rectangle {
         horizontalAlignment: Text.AlignRight
 
     }
-
-
 
 
 
@@ -57,8 +60,6 @@ Rectangle {
 
         property int step: 50
 
-        x: 330
-        y: 160
     }
 
 
@@ -77,8 +78,23 @@ Rectangle {
 
         property int step: 100
 
-        x: 827
-        y: 160
+    }
+
+    Ruler{
+        id: direction_ruler
+        width: 50
+        height: 400
+
+        anchors.centerIn: parent
+        anchors.verticalCenterOffset: -200
+
+        rotation: -90
+
+        property double value: 0
+        property int nb_big_slots: 5
+        property int nb_small_slots: 1
+
+        property int step: 100
     }
 
 
@@ -88,15 +104,17 @@ Rectangle {
 
         //lblSpeed.text = data_imu.getValue(FileIO.SPEED) + " m/s";
 
-        horizon.rotation = data_imu.getValue(FileIO.ROLL)*180;
+        horizon.rotation = (parseFloat(data_imu.getValue(FileIO.ROLL))/(roll_max+Math.abs(roll_min)))*360;
+        lblTemperature.text = data_imu.getValue(FileIO.TEMPERATURE) + "°C";
 
         velocity_ruler.value += 1
-        altitude_ruler.value += 1
+        altitude_ruler.value = parseFloat(data_imu.getValue(FileIO.PRESSURE));
+        direction_ruler.value = data_imu.getValue(FileIO.YAW)/6*360;
     }
 
     FileIO {
         id: data_imu
-        source: "data_imu.csv"
+        source: "data_imu_live.csv"
         onError: console.log(msg)
     }
 

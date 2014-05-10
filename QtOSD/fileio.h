@@ -50,7 +50,7 @@ signals:
 
 private:
     QString mSource;
-    QStringList lastLine;
+    QStringList lastFileLine;
 
     int i;
 

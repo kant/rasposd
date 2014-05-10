@@ -15,17 +15,22 @@ void FileIO::read()
     }
 
     QFile file(mSource);
-    QString fileContent;
+    QString lastLine, lastFullLine;
     if ( file.open(QIODevice::ReadOnly) ) {
-        QString line;
+        QString currentLine;
         QTextStream t( &file );
-        int y = 0;
-        do {
-            line = t.readLine();
 
-            if(!line.isNull())
-                fileContent = line;
-         } while (!line.isNull() && y++ < i);
+        //content = t.readAll();
+
+        //int y = 0;
+        do {
+            currentLine = t.readLine();
+
+            if(!currentLine.isNull()) {
+                lastFullLine = lastLine;
+                lastLine = currentLine;
+            }
+         } while (!currentLine.isNull());
 
         i++;
         file.close();
@@ -33,46 +38,12 @@ void FileIO::read()
         emit error("Unable to open the file");
     }
 
-    lastLine = fileContent.split('\t');
+    lastFileLine = lastFullLine.split('\t');
 }
 
-QString FileIO::getValue(FlightData parameter)
+QString FileIO::getValue(FlightData index)
 {
-    return lastLine.value(parameter);
-
-//    switch (parameter) {
-//    case TIME:
-//        return lastLine.value(0);
-//        break;
-
-//    case PITCH:
-//        return lastLine.value(1);
-//        break;
-
-//    case ROLL:
-//        return lastLine.value(2);
-//        break;
-
-//    case YAW:
-//        return lastLine.value(3);
-//        break;
-
-//    case SPEED:
-//        return lastLine.value(7);
-//        break;
-
-//    case TEMPERATURE:
-//        return lastLine.value(10);
-//        break;
-
-//    case PRESSURE:
-//        return lastLine.value(11);
-//        break;
-
-//    default:
-//        return "Unknown parameter";
-//        break;
-//    }
+    return lastFileLine.value(index);
 }
 
 
