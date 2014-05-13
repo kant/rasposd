@@ -35,6 +35,7 @@ public:
     }
 
     Q_INVOKABLE void read();
+    Q_INVOKABLE void getLastLinesFromFile();
     Q_INVOKABLE QString getValue(FlightData parameter);
     Q_INVOKABLE bool write(const QString& data);
 
