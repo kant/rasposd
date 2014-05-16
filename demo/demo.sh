@@ -10,7 +10,7 @@ echo "Starting data recorder. Data is saved in QtOSD/bin"
 sudo python ../recorder/recorder_demo.py &
 
 echo "Starting data visualisation overlay"
-QtOSD/bin/QtOSD &
+QtOSD/bin/QtOSD -platform eglfs &
 
 echo "All services started, press ENTER to end"
 read val
