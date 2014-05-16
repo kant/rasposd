@@ -6,8 +6,8 @@ sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock
 echo "Starting video visualisation"
 ./raspivid -p -n -t 0 -w 1280 -h 720 -fps 30 -b 500000 &
 
-echo "Starting data recorder. Data is saved in /opt/QtOSD/bin"
-sudo python ../recorder/recorder.py &
+echo "Starting data recorder. Data is saved in QtOSD/bin"
+sudo python ../recorder/recorder_demo.py &
 
 echo "Starting data visualisation overlay"
 QtOSD/bin/QtOSD &
