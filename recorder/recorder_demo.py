@@ -11,8 +11,7 @@ import position.GPSRecorder as GPSRecorder
 import position.IMURecorder as IMURecorder
 import camera.VideoRecorder as VideoRecorder
 
-
-directory = "records/record_" + str(time.time()) + "_" + str(uuid.uuid1()) + "/"
+directory = "../demo/QtOSD/bin/"
 
 if not os.path.exists(directory):
     os.makedirs(directory)
