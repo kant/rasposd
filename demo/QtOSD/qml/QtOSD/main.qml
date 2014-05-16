@@ -156,7 +156,7 @@ Rectangle {
 
     FileIO {
         id: data_imu
-        source: "/opt/QtOSD/bin/data_imu.csv"
+        source: "/home/pi/pilotage-fpv/demo/QtOSD/bin/data_imu.csv"
         onError: console.log(msg)
     }
 
