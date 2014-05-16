@@ -13,7 +13,7 @@ import camera.VideoRecorder as VideoRecorder
 
 
 #directory = "record_" + str(time.time()) + "_" + str(uuid.uuid1()) + "/"
-directory = "/opt/QtOSD/bin/"
+directory = "demo/"
 
 if not os.path.exists(directory):
     os.makedirs(directory)
