@@ -33,6 +33,7 @@ class ImuRecorder(threading.Thread):
 
         while self.running:
             self.writer.writerow(self.imu.read_all())
+            self.output.flush()
 
     def stop(self):
         self.running = False

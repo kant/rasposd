@@ -7,7 +7,7 @@ class VideoRecorder(threading.Thread):
     def __init__(self, filename):
         threading.Thread.__init__(self)
         self.camera = picamera.PiCamera()
-        self.camera.resolution = (1280, 1024)
+        self.camera.resolution = (1280, 720)
         self.output = filename
         self.running = False
 

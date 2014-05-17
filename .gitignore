@@ -1,0 +1,9 @@
+
+
+# Folders
+recorder/records/
+.idea/
+
+
+# Files
+*.pyc
