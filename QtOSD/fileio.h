@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QFile>
 
 #include <QQmlApplicationEngine>
 #include <QQmlComponent>
@@ -34,24 +35,26 @@ public:
         qmlRegisterType<FileIO, 1>("FileIO", 1, 0, "FileIO");
     }
 
+    Q_INVOKABLE void open();
     Q_INVOKABLE void read();
     Q_INVOKABLE void getLastLinesFromFile();
     Q_INVOKABLE QString getValue(FlightData parameter);
-    Q_INVOKABLE bool write(const QString& data);
+    Q_INVOKABLE bool write(const QString &data);
 
-    QString source() { return mSource; };
+    QString source() { return mSource; }
 
 
 public slots:
-    void setSource(const QString& source) { mSource = source; };
+    void setSource(const QString &source) { mSource = source; }
 
 signals:
-    void sourceChanged(const QString& source);
-    void error(const QString& msg);
+    void sourceChanged(const QString &source);
+    void error(const QString &msg);
 
 private:
     QString mSource;
     QStringList lastFileLine;
+    QFile *file;
 
     int i;
 
