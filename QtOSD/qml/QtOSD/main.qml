@@ -19,85 +19,119 @@ Rectangle {
 
     property int font_size: 15
 
+    property string text_color: "white"
+    property string text_outline_color: "black"
 
+    property string text_font: "arial"
 
     color: "transparent"
 
-	FontLoader { id: myfont; source: "/home/pi/pilotage-fpv/Arial.ttf" }
-	// arial ne marche pas si je ne la charge pas avant.
+    // arial ne marche pas si je ne la charge pas avant.
+    FontLoader {
+        id: myfont
+        source: "/home/pi/pilotage-fpv/Arial.ttf"
+    }
 
     Text {
         id: lblTemperature
+
         font.pointSize: font_size
+        font.family: text_font
+
+        color: text_color
+        style: Text.Outline;
+        styleColor: text_outline_color
+
+
         horizontalAlignment: Text.AlignRight
-	color: "white"
-	style: Text.Outline; styleColor: "black"
-     	font.family: "arial"
     }
 
     Text {
         id: lblLatitude
-        font.pointSize: font_size
         text: "46.540386 N "
-	color: "white"
-	style: Text.Outline; styleColor: "black"
-     	font.family: "arial"
+
+        font.pointSize: font_size
+        font.family: text_font
+
+        color: text_color
+        style: Text.Outline;
+        styleColor: text_outline_color
+
         anchors.right: parent.horizontalCenter
     }
 
     Text {
         id: lblLongitude
-        font.pointSize: font_size
         text: " 6.631568 E"
-	color: "white"
-	style: Text.Outline; styleColor: "black"
-     	font.family: "arial"
+
+        font.pointSize: font_size
+        font.family: text_font
+
+        color: text_color
+        style: Text.Outline;
+        styleColor: text_outline_color
+
         anchors.left: parent.horizontalCenter
-//        anchors.top: lblLatitude.bottom
     }
 
 
     Text {
         id: lblDate
-        font.pointSize: font_size
         text: "2014.05.13 - "
+
+        font.pointSize: font_size
+        font.family: text_font
+
+        color: text_color
+        style: Text.Outline;
+        styleColor: text_outline_color
+
         horizontalAlignment: Text.AlignRight
-	color: "white"
-	style: Text.Outline; styleColor: "black"
-     	font.family: "arial"
-	anchors.right: lblHeure.left
-	anchors.bottom: parent.bottom
+
+        anchors.right: lblHeure.left
+        anchors.bottom: parent.bottom
     }
 
 
     Text {
         id: lblHeure
-        font.pointSize: font_size
         text: "13:37:23"
+
+        font.pointSize: font_size
+        font.family: text_font
+
+        color: text_color
+        style: Text.Outline;
+        styleColor: text_outline_color
+
         horizontalAlignment: Text.AlignRight
-	color: "white"
-	style: Text.Outline; styleColor: "black"
-     	font.family: "arial"
+
         anchors.right: parent.right
         anchors.bottom: parent.bottom
     }
 
+
     Rectangle {
         id: horizon
+
+        // Position
         width: 300
         height:4
-        color: "#80008000"
         anchors.centerIn: parent
         rotation: roll
-	border.color: "#C0FFFFFF"
-	border.width: 1
-	// smooth: true // did not work
+
+        // Aspect
+        color: "#80008000"
+        border.color: "#C0FFFFFF"
+        border.width: 1
+        // smooth: true // did not work
     }
 
 
 
     Ruler {
         id: altitude_ruler
+
         width: 30
         height: 300
 
@@ -170,7 +204,7 @@ Rectangle {
     FileIO {
         id: data_imu
 
-        source: "/home/pi/pilotage-fpv/demo/QtOSD/bin/data_imu.csv"
+        source: "/home/pi/pilotage-fpv/recorder/records/last/data_imu.csv"
         onError: console.log(msg)
     }
 

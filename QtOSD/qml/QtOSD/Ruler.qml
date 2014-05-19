@@ -3,38 +3,46 @@ import QtQuick 2.2
 
 Rectangle {
     id: ruler
-    property int line_width: 3
 
     property int big_slot_height: ruler.height/nb_big_slots
     property int small_slot_height: ruler.height/nb_big_slots/(nb_small_slots+1)
 
     property string lines_color: "#80008000"
     property string border_color: "#C0FFFFFF"
+
+    property int line_width: 3
+    property int border_width: 3
+
     property string text_color: "white"
     property string text_font: "arial"
 
+    property int revert: -1
+
     color: "transparent"
-    //border.color: "lightblue"
-    //border.width: 2
 
     Rectangle {
         width: line_width
         height: ruler.height
+
         color: lines_color
-	border.color: border_color
-	border.width: 1
+        border.color: border_color
+        border.width: border_width
         anchors.verticalCenter: ruler.verticalCenter
         // anchors.verticalCenterOffset: big_slot_height/2 // lui doit rester centré, c'est les regles qui doivent se decaller proprement
     }
 
     Rectangle {
        id: ruler_cursor
+
        width:  20
        height: line_width*2
+
        color: lines_color
        border.color: border_color
+
        anchors.verticalCenter: parent.verticalCenter
        anchors.horizontalCenter: parent.horizontalCenter
+
        anchors.horizontalCenterOffset: -21
     }
  
@@ -48,8 +56,6 @@ Rectangle {
                 width: ruler.width
                 height: big_slot_height
                 color: "transparent"
-                // border.color: "blue"
-
 
                 Rectangle {
                     id: ruler_line
@@ -63,12 +69,12 @@ Rectangle {
 
 
                Text {
-                    text: ((value-value%ruler.step)+(nb_big_slots-index)*ruler.step-(ruler.step*nb_big_slots/2+(ruler.step*nb_big_slots/2%ruler.step)))
+                    text: (value-value%ruler.step)+(nb_big_slots-index)*ruler.step-(ruler.step*nb_big_slots/2+(ruler.step*nb_big_slots/2%ruler.step))
                     anchors.left: ruler_line.right
                     anchors.verticalCenter: ruler_line.verticalCenter
                     anchors.leftMargin: 5
 
-                    font.pointSize: 12
+                    font.pointSize: 16
                     rotation: -ruler.rotation
                     color: text_color
 	            style: Text.Outline; styleColor: "black"
