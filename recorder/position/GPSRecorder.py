@@ -2,7 +2,6 @@ from gps import *
 import time
 import threading
 import csv
-import sys
 
 
 class GpsRecorder(threading.Thread):
