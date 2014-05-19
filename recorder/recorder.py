@@ -12,15 +12,19 @@ import position.IMURecorder as IMURecorder
 import camera.VideoRecorder as VideoRecorder
 
 
-directory = "records/record_" + str(time.time()) + "_" + str(uuid.uuid1()) + "/"
+subdir = "record_" + str(time.time()) + "_" + str(uuid.uuid1()) + "/"
+directory = "records/" + subdir
 
 if not os.path.exists(directory):
     os.makedirs(directory)
 
+os.remove('records/last')
+os.symlink(subdir, 'records/last')
+
 
 imu = IMURecorder.ImuRecorder(directory)
 gps = GPSRecorder.GpsRecorder(directory)
-#video = VideoRecorder.VideoRecorder(directory + "video.h264")
+video = VideoRecorder.VideoRecorder(directory + "video.h264")
 
 try:
     print "Starting IMU recorder"
@@ -28,7 +32,7 @@ try:
     print "Starting GPS recorder"
     gps.start()
     print "Starting video recorder"
-    #video.start()
+    video.start()
 
     print "Now recording..."
     while True:
@@ -45,13 +49,13 @@ except:
 
 finally:
     print "Stopping recorders"
-    #video.stop()
+    video.stop()
     gps.stop()
     imu.stop()
 
     #wait for the tread to finish
     print "- Wait for video recorder"
-    #video.join()
+    video.join()
     print "- Wait for gps recorder"
     gps.join()
     print "- Wait for imu recorder"
