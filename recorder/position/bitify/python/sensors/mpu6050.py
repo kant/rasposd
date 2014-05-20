@@ -30,6 +30,8 @@ class MPU6050(object):
     ACCEL_ZOUT_H = 4
     ACCEL_ZOUT_L = 5
 
+    # Specify accelerometer ADC sampling scale
+    # You should specify the smallest scale you need to mesure. Higher the scale, less precise is the data
     ACCEL_SCALE = { AFS_2g  : [ 2, 16384.0], AFS_4g  : [ 4, 8192.0], AFS_8g  : [ 8, 4096.0], AFS_16g : [16, 2048.0] }
 
     TEMP_START_BLOCK = 0x41
@@ -44,6 +46,8 @@ class MPU6050(object):
     GYRO_ZOUT_H = 4
     GYRO_ZOUT_L = 5
 
+    # Specify gyroscope ADC sampling scale
+    # You should specify the smallest scale you need to mesure. Higher the scale, less precise is the data
     GYRO_SCALE = { FS_250  : [ 250, 131.0], FS_500  : [ 500, 65.5], FS_1000 : [1000, 32.8], FS_2000 : [2000, 16.4] }
 
     K = 0.98

@@ -1,6 +1,7 @@
 import math
 
 import position.bitify.python.utils.i2cutils as I2CUtils
+import time
 
 
 class HMC5883L(object):
@@ -131,4 +132,46 @@ class HMC5883L(object):
     def read_scaled_z(self):
         return self.scaled_z
     
+    def get_calibration(self):
+        minx = 0
+        maxx = 0
+        miny = 0
+        maxy = 0
+        minz = 0
+        maxz = 0
 
+        for i in range(0,100):
+
+            raw_data = I2CUtils.i2c_read_block(self.bus, self.address, HMC5883L.DATA_START_BLOCK, 6)
+            x_out = I2CUtils.twos_compliment(raw_data[HMC5883L.DATA_XOUT_H], raw_data[HMC5883L.DATA_XOUT_L])
+            y_out = I2CUtils.twos_compliment(raw_data[HMC5883L.DATA_YOUT_H], raw_data[HMC5883L.DATA_YOUT_L])
+            z_out = I2CUtils.twos_compliment(raw_data[HMC5883L.DATA_ZOUT_H], raw_data[HMC5883L.DATA_ZOUT_L])
+
+            if x_out < minx:
+                minx=x_out
+
+            if y_out < miny:
+                miny=y_out
+
+            if z_out < minz:
+                minz=z_out
+
+            if x_out > maxx:
+                maxx=x_out
+
+            if y_out > maxy:
+                maxy=y_out
+
+            if z_out > maxz:
+                maxz=z_out
+
+
+            #print x_out, y_out, (x_out * scale), (y_out * scale)
+            time.sleep(0.1)
+
+
+        x_offset = (maxx + minx) / 2
+        y_offset = (maxy + miny) / 2
+        z_offset = (maxz + minz) / 2
+
+        return [x_offset, y_offset, z_offset]

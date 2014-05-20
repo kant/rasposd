@@ -19,7 +19,6 @@ class VideoRecorder(threading.Thread):
         while self.running:
             self.camera.wait_recording(1)
 
-        self.camera.stop_recording()
-
     def stop(self):
         self.running = False
+        self.camera.stop_recording()
