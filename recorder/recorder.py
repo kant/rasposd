@@ -18,8 +18,10 @@ directory = "records/" + subdir
 if not os.path.exists(directory):
     os.makedirs(directory)
 
-os.remove('records/last')
-os.symlink(subdir, 'records/last')
+last_dir = 'records/last'
+if os.path.isdir(last_dir):
+    os.remove(last_dir)
+os.symlink(subdir, last_dir)
 
 
 imu = IMURecorder.ImuRecorder(directory)
