@@ -30,15 +30,13 @@ os.symlink(subdir, last_dir)
 config = ConfigParser.RawConfigParser()
 config_file = 'calibration/last.cfg'
 
-magnetometer_calibration = int[3]
-magnetometer_calibration[0] = 0
-magnetometer_calibration[1] = 0
-magnetometer_calibration[2] = 0
+magnetometer_calibration = [0] * 3
 
 if os.path.exists(config_file):
-    magnetometer_calibration[0] = config.read('magnetometer', 'x_offset')
-    magnetometer_calibration[1] = config.read('magnetometer', 'y_offset')
-    magnetometer_calibration[2] = config.read('magnetometer', 'z_offset')
+    config.read(config_file)
+    magnetometer_calibration[0] = config.getint('magnetometer', 'x_offset')
+    magnetometer_calibration[1] = config.getint('magnetometer', 'y_offset')
+    magnetometer_calibration[2] = config.getint('magnetometer', 'z_offset')
 else:
     print("Your compass is not calibrated. Please run the calibration script for better performances. "
           "You should run it each time the device environment (magnetic noise) changed.")
