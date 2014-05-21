@@ -24,7 +24,7 @@ config.set('magnetometer', 'y_offset', y_offset)
 config.set('magnetometer', 'z_offset', z_offset)
 
 # Writing our configuration file to 'example.cfg'
-with open('calibration/last.cfg', 'wb') as configfile:
+with open('config/calibration.cfg', 'wb') as configfile:
     config.write(configfile)
 
 print("Data saved to config file")

@@ -28,7 +28,7 @@ os.symlink(subdir, last_dir)
 
 # Read calibration data
 config = ConfigParser.RawConfigParser()
-config_file = 'calibration/last.cfg'
+config_file = 'config/calibration.cfg'
 
 magnetometer_calibration = [0] * 3
 
