@@ -46,5 +46,5 @@ class VideoRecorder(threading.Thread):
             print("No camera config found, using default config.")
 
         print("Camera config :")
-        print("- resolution : " + str(self.resolution_x) + "x" + str(self.resolution_y))
-        print("- rotation : " + str(self.rotation) + "°")
+        print(" - resolution : " + str(self.resolution_x) + "x" + str(self.resolution_y))
+        print(" - rotation : " + str(self.rotation) + " degrees")
