@@ -1,5 +1,4 @@
 from gps import *
-import smbus
 import csv
 import threading
 
@@ -11,8 +10,8 @@ class PositionRecorder(threading.Thread):
 
     def __init__(self, directory):
         threading.Thread.__init__(self)
-        self.imu = IMUReader.ImuRecorder()
-        self.gps = GPSReader.GpsRecorder()
+        self.imu = IMUReader.ImuReader(True, 'records/feed/data_imu.csv')
+        self.gps = GPSReader.GpsReader(True, 'records/feed/data_gps.csv')
 
         self.imu.start()
         self.gps.start()

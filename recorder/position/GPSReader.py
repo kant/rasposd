@@ -2,6 +2,7 @@ from gps import *
 import time
 import threading
 
+from position.GPSRecord import GPSRecord
 
 class GpsDataset:
 
@@ -39,23 +40,36 @@ class GpsDataset:
         self.eps = fix.eps
         self.epc = fix.epc
         self.mode = fix.mode
-        #self.sats = fix.sats
 
     def equals(self, dataset):
         return self.time == dataset.time
 
+    def is_valid(self):
+        return self.time != NaN and \
+            self.latitude != NaN and \
+            self.longitude != NaN and \
+            self.altitude != NaN and \
+            self.track != NaN and \
+            self.speed != NaN and \
+            self.climb != NaN
 
-class GpsRecorder(threading.Thread):
+
+class GpsReader(threading.Thread):
     '''
     http://www.stuffaboutcode.com/2013/09/raspberry-pi-gps-setup-and-python.html
     '''
-    def __init__(self):
+    def __init__(self, from_record=False, record_file=""):
         threading.Thread.__init__(self)
-        self.gpsd = gps(mode=WATCH_ENABLE) #starting the stream of info
+
+        if from_record:
+            self.gpsd = GPSRecord(record_file)
+        else:
+            self.gpsd = gps(mode=WATCH_ENABLE) #starting the stream of info
 
         self.running = False
 
         self.data_set = GpsDataset()
+        self.new_data_set = GpsDataset()
         self.new = False
 
     def run(self):
@@ -64,8 +78,11 @@ class GpsRecorder(threading.Thread):
         while self.running:
             self.gpsd.next()
 
-            self.data_set.set(self.gpsd.fix)
-            self.new = True
+            self.new_data_set.set(self.gpsd.fix)
+
+            if self.new_data_set.is_valid():
+                self.data_set = self.new_data_set
+                self.new = True
 
             time.sleep(0.9)
 

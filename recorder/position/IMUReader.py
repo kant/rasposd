@@ -2,8 +2,11 @@ import smbus
 import threading
 import time
 
+from position.IMURecord import IMURecord
+
 from position.bitify.python.sensors.gy88 import GY88
 from position.bitify.python.utils.i2cutils import i2c_raspberry_pi_bus_number
+
 
 gyro_address = 0x68
 compass_address = 0x1e
@@ -51,12 +54,16 @@ class ImuDataset:
             self.pressure == dataset.pressure
 
 
-class ImuRecorder(threading.Thread):
+class ImuReader(threading.Thread):
 
-    def __init__(self):
+    def __init__(self, from_record=False, record_file=""):
         threading.Thread.__init__(self)
-        self.bus = smbus.SMBus(i2c_raspberry_pi_bus_number())
-        self.imu = GY88(self.bus, gyro_address, compass_address, barometer_address, "GY88")
+
+        if from_record:
+            self.imu = IMURecord(record_file)
+        else:
+            self.bus = smbus.SMBus(i2c_raspberry_pi_bus_number())
+            self.imu = GY88(self.bus, gyro_address, compass_address, barometer_address, "GY88")
 
         self.running = False
         self.data_set = ImuDataset()
