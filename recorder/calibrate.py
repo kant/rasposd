@@ -18,10 +18,10 @@ print("Z offset : " + str(z_offset))
 
 config = ConfigParser.RawConfigParser()
 
-config.add_section('calibration')
-config.set('calibration', 'x_offset', x_offset)
-config.set('calibration', 'y_offset', y_offset)
-config.set('calibration', 'z_offset', z_offset)
+config.add_section('magnetometer')
+config.set('magnetometer', 'x_offset', x_offset)
+config.set('magnetometer', 'y_offset', y_offset)
+config.set('magnetometer', 'z_offset', z_offset)
 
 # Writing our configuration file to 'example.cfg'
 with open('calibration/last.cfg', 'wb') as configfile:

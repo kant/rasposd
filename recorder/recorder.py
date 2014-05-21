@@ -2,6 +2,7 @@ import time
 import os
 import sys
 import uuid
+import ConfigParser
 
 DOSSIER_COURRANT = os.path.dirname(os.path.abspath(__file__))
 DOSSIER_PARENT = os.path.dirname(DOSSIER_COURRANT)
@@ -12,6 +13,7 @@ import position.IMURecorder as IMURecorder
 import camera.VideoRecorder as VideoRecorder
 
 
+# Define record folder and links
 subdir = "record_" + str(time.time()) + "_" + str(uuid.uuid1()) + "/"
 directory = "records/" + subdir
 
@@ -24,7 +26,24 @@ if os.path.isdir(last_dir):
 os.symlink(subdir, last_dir)
 
 
-imu = IMURecorder.ImuRecorder(directory)
+# Read calibration data
+config = ConfigParser.RawConfigParser()
+config_file = 'calibration/last.cfg'
+
+magnetometer_calibration = int[3]
+magnetometer_calibration[0] = 0
+magnetometer_calibration[1] = 0
+magnetometer_calibration[2] = 0
+
+if os.path.exists(config_file):
+    magnetometer_calibration[0] = config.read('magnetometer', 'x_offset')
+    magnetometer_calibration[1] = config.read('magnetometer', 'y_offset')
+    magnetometer_calibration[2] = config.read('magnetometer', 'z_offset')
+else:
+    print("Your compass is not calibrated. Please run the calibration script for better performances. "
+          "You should run it each time the device environment (magnetic noise) changed.")
+
+imu = IMURecorder.ImuRecorder(directory, magnetometer_calibration)
 gps = GPSRecorder.GpsRecorder(directory)
 video = VideoRecorder.VideoRecorder(directory + "video.h264")
 

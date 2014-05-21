@@ -10,7 +10,7 @@ class GY88(object):
     K = 0.98
     K1 = 1 - K
 
-    def __init__(self, bus, gyro_address, compass_address, barometer_address, name, gyro_scale=MPU6050.FS_2000,
+    def __init__(self, bus, gyro_address, compass_address, barometer_address, name, compass_calibration, gyro_scale=MPU6050.FS_2000,
                  accel_scale=MPU6050.AFS_16g):
         self.bus = bus
         self.gyro_address = gyro_address
@@ -19,7 +19,10 @@ class GY88(object):
         self.accel_scale = accel_scale
 
         self.gyroscope = MPU6050(bus, gyro_address, name + "-gyroscope", gyro_scale, accel_scale)
-        self.compass = HMC5883L(bus, compass_address, name + "-compass")
+        self.compass = HMC5883L(bus, compass_address, name + "-compass", rate=5,
+                                x_offset=compass_calibration[0],
+                                y_offset=compass_calibration[1],
+                                z_offset=compass_calibration[2])
         self.barometer = BMP085(bus, barometer_address, name + "-barometer")
 
         self.mesure_time = time.time()

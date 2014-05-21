@@ -12,10 +12,10 @@ barometer_address = 0x77
 
 class ImuRecorder(threading.Thread):
 
-    def __init__(self, directory):
+    def __init__(self, directory, magnetometer_calibration):
         threading.Thread.__init__(self)
         self.bus = smbus.SMBus(i2c_raspberry_pi_bus_number())
-        self.imu = GY88(self.bus, gyro_address, compass_address, barometer_address, "GY88")
+        self.imu = GY88(self.bus, gyro_address, compass_address, barometer_address, "GY88", magnetometer_calibration)
         self.output = open(directory + 'data_imu.csv', "wb")
         self.writer = csv.writer(self.output, delimiter='\t', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
         self.running = False
