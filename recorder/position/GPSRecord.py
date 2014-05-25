@@ -9,7 +9,7 @@ class Fix:
         try:
             data[0] = float(data[0])
         except ValueError:
-            data[0] = time.mktime(datetime.datetime.strptime(data[0], "%Y-%m-%dT%H:%M:%S.000Z").timetuple())
+            data[0] = time.mktime(datetime.datetime.strptime(data[0], "%Y-%m-%dT%H:%M:%S.???Z").timetuple())
 
         self.time = data[0]
         self.ept = float(data[7])
