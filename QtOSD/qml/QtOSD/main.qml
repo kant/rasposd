@@ -27,10 +27,10 @@ Rectangle {
     color: "transparent"
 
     // arial ne marche pas si je ne la charge pas avant.
-    FontLoader {
-        id: myfont
-        source: "/home/pi/pilotage-fpv/Arial.ttf"
-    }
+//    FontLoader {
+//        id: myfont
+//        source: "/home/pi/pilotage-fpv/Arial.ttf"
+//    }
 
     Text {
         id: lblTemperature
@@ -120,6 +120,8 @@ Rectangle {
         anchors.centerIn: parent
         rotation: roll
 
+        anchors.verticalCenterOffset: pitch
+
         // Aspect
         color: "#80008000"
         border.color: "#C0FFFFFF"
@@ -142,7 +144,7 @@ Rectangle {
         property int nb_big_slots: 5
         property int nb_small_slots: 5
 
-        property int step: 50
+        property int step: 20
 
     }
 
@@ -162,6 +164,7 @@ Rectangle {
         property int nb_small_slots: 1
 
         property int step: 100
+        property bool reversed: true
 
     }
 
@@ -184,33 +187,55 @@ Rectangle {
         property int step: 45
 
         property double cycle: 360
+
+        property variant labels
+        property bool reversed: true
     }
 
 
 
     function refresh() {
-        data_imu.read();
+        data.read();
 
         //lblSpeed.text = data_imu.getValue(FileIO.SPEED) + " m/s";
 
-        horizon.rotation = (parseFloat(data_imu.getValue(FileIO.ROLL))/(roll_max+Math.abs(roll_min)))*360;
-        lblTemperature.text = data_imu.getValue(FileIO.TEMPERATURE) + "°C";
+        horizon.rotation = (parseFloat(data.getValue(FileIO.ROLL))/(roll_max+Math.abs(roll_min)))*360;
+        lblTemperature.text = data.getValue(FileIO.TEMPERATURE) + "°C";
 
-        velocity_ruler.value += 1
-        altitude_ruler.value = parseFloat(data_imu.getValue(FileIO.PRESSURE));
-        direction_ruler.value = data_imu.getValue(FileIO.YAW)/6*360;
+//        velocity_ruler.value = parseFloat(data.getValue(FileIO.SPEED));
+        velocity_ruler.value += 1;
+//        altitude_ruler.value = parseFloat(data.getValue(FileIO.ALTITUDE));
+        altitude_ruler.value += 1
+        direction_ruler.value = data.getValue(FileIO.YAW)/6*360;
+    }
+
+    function directionLabels() {
+        var labels = [];
+        labels[0] = ' N ';
+        labels[45] = 'NE';
+        labels[90] = ' E ';
+        labels[135] = 'SE';
+        labels[180] = ' S ';
+        labels[225] = 'SO';
+        labels[270] = ' O ';
+        labels[315] = 'NO';
+        return labels;
     }
 
     FileIO {
-        id: data_imu
+        id: data
 
-        source: "/home/pi/pilotage-fpv/recorder/records/last/data_imu.csv"
+        source: "/home/oswin/projects/pilotage-fpv/recorder/records/last/data_pos.csv"
+//        DataType: LIVE
+
         onError: console.log(msg)
     }
 
     Component.onCompleted: {
-        data_imu.open();
-        data_imu.read();
+        data.open();
+        data.read();
+
+        direction_ruler.labels = directionLabels();
     }
 
     Timer {
