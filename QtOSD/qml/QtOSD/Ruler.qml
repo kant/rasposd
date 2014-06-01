@@ -59,8 +59,6 @@ Rectangle {
                 height: big_slot_height
                 color: "transparent"
 
-                border.color: "red"
-
                 Rectangle {
                     id: ruler_line
                     width: ruler.width

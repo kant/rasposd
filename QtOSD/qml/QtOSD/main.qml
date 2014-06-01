@@ -14,8 +14,10 @@ Rectangle {
     property double roll_max: 2.5883750748
     property double roll_min: -3.7320618556
 
-    property double pitch_max: 1.4
-    property double pitch_min: -1.65
+    property double pitch_max: 3.5
+    property double pitch_min: -3.5
+
+    property int horizon_max_offset: 400
 
     property int font_size: 15
 
@@ -23,6 +25,10 @@ Rectangle {
     property string text_outline_color: "black"
 
     property string text_font: "arial"
+
+    property int refresh_interval: 20
+
+    property bool sim: true
 
     color: "transparent"
 
@@ -44,11 +50,15 @@ Rectangle {
 
 
         horizontalAlignment: Text.AlignRight
+
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.margins: 10
     }
 
     Text {
         id: lblLatitude
-        text: "46.540386 N "
+        text: "Latitude"
 
         font.pointSize: font_size
         font.family: text_font
@@ -58,11 +68,13 @@ Rectangle {
         styleColor: text_outline_color
 
         anchors.right: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.margins: 10
     }
 
     Text {
         id: lblLongitude
-        text: " 6.631568 E"
+        text: "/ Longitude"
 
         font.pointSize: font_size
         font.family: text_font
@@ -72,12 +84,32 @@ Rectangle {
         styleColor: text_outline_color
 
         anchors.left: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.margins: 10
     }
 
 
     Text {
         id: lblDate
-        text: "2014.05.13 - "
+        text: "2014.05.13"
+
+        font.pointSize: font_size
+        font.family: text_font
+
+        color: text_color
+        style: Text.Outline;
+        styleColor: text_outline_color
+
+        horizontalAlignment: Text.AlignRight
+
+        anchors.right: lblDateSep.left
+        anchors.bottom: parent.bottom
+        anchors.margins: 10
+    }
+
+    Text {
+        id: lblDateSep
+        text: "-"
 
         font.pointSize: font_size
         font.family: text_font
@@ -90,8 +122,8 @@ Rectangle {
 
         anchors.right: lblHeure.left
         anchors.bottom: parent.bottom
+        anchors.margins: 10
     }
-
 
     Text {
         id: lblHeure
@@ -108,6 +140,7 @@ Rectangle {
 
         anchors.right: parent.right
         anchors.bottom: parent.bottom
+        anchors.margins: 10
     }
 
 
@@ -163,7 +196,7 @@ Rectangle {
         property int nb_big_slots: 5
         property int nb_small_slots: 1
 
-        property int step: 100
+        property int step: 5
         property bool reversed: true
 
     }
@@ -192,21 +225,36 @@ Rectangle {
         property bool reversed: true
     }
 
-
-
     function refresh() {
-        data.read();
+
+        if(sim) {
+            data.incrementCurrentSimTime(refresh_interval/1000)
+        } else {
+            data.readLastLine();
+        }
 
         //lblSpeed.text = data_imu.getValue(FileIO.SPEED) + " m/s";
 
         horizon.rotation = (parseFloat(data.getValue(FileIO.ROLL))/(roll_max+Math.abs(roll_min)))*360;
         lblTemperature.text = data.getValue(FileIO.TEMPERATURE) + "°C";
 
-//        velocity_ruler.value = parseFloat(data.getValue(FileIO.SPEED));
-        velocity_ruler.value += 1;
-//        altitude_ruler.value = parseFloat(data.getValue(FileIO.ALTITUDE));
-        altitude_ruler.value += 1
+        velocity_ruler.value = parseFloat(data.getValue(FileIO.SPEED));
+//        velocity_ruler.value += 1;
+
+        altitude_ruler.value = parseFloat(data.getValue(FileIO.ALTITUDE));
+//        altitude_ruler.value += 1
+
+//        pitch = -(1+Math.log(parseFloat(data.getValue(FileIO.PITCH))/pitch_max))*horizon_max_offset
+
         direction_ruler.value = data.getValue(FileIO.YAW)/6*360;
+
+        lblLongitude.text = parseFloat(data.getValue(FileIO.LONGITUDE))
+        lblLatitude.text = parseFloat(data.getValue(FileIO.LATITUDE))
+
+        var date = new Date(data.getValue(FileIO.TIME)*1000);
+
+        lblDate.text = date.getDate() + "." + date.getMonth() + "." + date.getFullYear()
+        lblHeure.text = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()
     }
 
     function directionLabels() {
@@ -222,10 +270,13 @@ Rectangle {
         return labels;
     }
 
+
     FileIO {
         id: data
 
-        source: "/home/oswin/projects/pilotage-fpv/recorder/records/last/data_pos.csv"
+        source: "/home/oswin/projects/pilotage-fpv/recorder/records/velo_plaisante.csv"
+//        source: "/home/pi/pilotage-fpv/recorder/records/last/data_pos.csv"
+//        source: "/home/oswin/projects/pilotage-fpv/recorder/records/last/data_pos.csv"
 //        DataType: LIVE
 
         onError: console.log(msg)
@@ -233,15 +284,21 @@ Rectangle {
 
     Component.onCompleted: {
         data.open();
-        data.read();
 
         direction_ruler.labels = directionLabels();
     }
 
     Timer {
-        interval: 20 // 50 Hz
+        interval: refresh_interval
         onTriggered: refresh()
         repeat: true
         running: true
+    }
+
+    Timer {
+        interval: refresh_interval/2
+        onTriggered: data.readNextLine()
+        repeat: true
+        running: sim
     }
 }
