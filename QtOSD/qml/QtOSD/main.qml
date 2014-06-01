@@ -17,7 +17,7 @@ Rectangle {
     property double pitch_max: 3.5
     property double pitch_min: -3.5
 
-    property int horizon_max_offset: 400
+    property int horizon_max_offset: 200
 
     property int font_size: 15
 
@@ -28,7 +28,7 @@ Rectangle {
 
     property int refresh_interval: 20
 
-    property bool sim: true
+    property bool sim: false
 
     color: "transparent"
 
@@ -233,26 +233,21 @@ Rectangle {
             data.readLastLine();
         }
 
-        //lblSpeed.text = data_imu.getValue(FileIO.SPEED) + " m/s";
+        horizon.rotation = parseFloat(data.getValue(FileIO.ROLL))
+        pitch = -(Math.atan(parseFloat(data.getValue(FileIO.PITCH))/40)*horizon_max_offset)
 
-        horizon.rotation = (parseFloat(data.getValue(FileIO.ROLL))/(roll_max+Math.abs(roll_min)))*360;
-        lblTemperature.text = data.getValue(FileIO.TEMPERATURE) + "°C";
 
         velocity_ruler.value = parseFloat(data.getValue(FileIO.SPEED));
-//        velocity_ruler.value += 1;
-
         altitude_ruler.value = parseFloat(data.getValue(FileIO.ALTITUDE));
-//        altitude_ruler.value += 1
+        direction_ruler.value = parseFloat(data.getValue(FileIO.YAW))
 
-//        pitch = -(1+Math.log(parseFloat(data.getValue(FileIO.PITCH))/pitch_max))*horizon_max_offset
 
-        direction_ruler.value = data.getValue(FileIO.YAW)/6*360;
+        lblTemperature.text = data.getValue(FileIO.TEMPERATURE) + "°C";
 
         lblLongitude.text = parseFloat(data.getValue(FileIO.LONGITUDE))
         lblLatitude.text = parseFloat(data.getValue(FileIO.LATITUDE))
 
         var date = new Date(data.getValue(FileIO.TIME)*1000);
-
         lblDate.text = date.getDate() + "." + date.getMonth() + "." + date.getFullYear()
         lblHeure.text = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()
     }
@@ -274,9 +269,10 @@ Rectangle {
     FileIO {
         id: data
 
-        source: "/home/oswin/projects/pilotage-fpv/recorder/records/velo_plaisante.csv"
 //        source: "/home/pi/pilotage-fpv/recorder/records/last/data_pos.csv"
+        source: "/home/pi/testing/recorder/records/last/data_pos.csv"
 //        source: "/home/oswin/projects/pilotage-fpv/recorder/records/last/data_pos.csv"
+//        source: "/home/oswin/projects/pilotage-fpv/recorder/records/velo_plaisante.csv"
 //        DataType: LIVE
 
         onError: console.log(msg)

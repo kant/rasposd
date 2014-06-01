@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 3.0.1, 2014-05-20T00:43:54. -->
+<!-- Written by QtCreator 3.0.1, 2014-06-01T18:41:03. -->
 <qtcreator>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
@@ -199,35 +199,35 @@
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">RemoteLinux.DirectUploadStep</value>
       <valuelist type="QVariantList" key="Qt4ProjectManager.MaemoRunConfiguration.LastDeployedFiles">
-       <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/main.qml</value>
        <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/Ruler.qml</value>
-       <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/main.qml</value>
        <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/Ruler.qml</value>
-       <value type="QString">/home/oswin/projects/pilotage-fpv/build-QtOSD-RPi-Debug/QtOSD</value>
        <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/Ruler.qml</value>
        <value type="QString">/home/oswin/projects/pilotage-fpv/build-QtOSD-RPi-Debug/QtOSD</value>
+       <value type="QString">/home/oswin/projects/pilotage-fpv/build-QtOSD-RPi-Debug/QtOSD</value>
+       <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/main.qml</value>
+       <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/main.qml</value>
        <value type="QString">/home/oswin/projects/pilotage-fpv/build-QtOSD-RPi-Debug/QtOSD</value>
        <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/main.qml</value>
       </valuelist>
       <valuelist type="QVariantList" key="Qt4ProjectManager.MaemoRunConfiguration.LastDeployedHosts">
        <value type="QString">10.0.0.2</value>
        <value type="QString">pilot-rpi</value>
-       <value type="QString">pilot-rpi</value>
+       <value type="QString">pilot-rpi.local</value>
+       <value type="QString">10.0.0.2</value>
        <value type="QString">pilot-rpi.local</value>
        <value type="QString">pilot-rpi</value>
        <value type="QString">10.0.0.2</value>
-       <value type="QString">10.0.0.2</value>
-       <value type="QString">pilot-rpi.local</value>
+       <value type="QString">pilot-rpi</value>
        <value type="QString">pilot-rpi.local</value>
       </valuelist>
       <valuelist type="QVariantList" key="Qt4ProjectManager.MaemoRunConfiguration.LastDeployedRemotePaths">
        <value type="QString">/opt/QtOSD/qml/QtOSD</value>
        <value type="QString">/opt/QtOSD/qml/QtOSD</value>
        <value type="QString">/opt/QtOSD/qml/QtOSD</value>
-       <value type="QString">/opt/QtOSD/qml/QtOSD</value>
+       <value type="QString">/opt/QtOSD/bin</value>
        <value type="QString">/opt/QtOSD/bin</value>
        <value type="QString">/opt/QtOSD/qml/QtOSD</value>
-       <value type="QString">/opt/QtOSD/bin</value>
+       <value type="QString">/opt/QtOSD/qml/QtOSD</value>
        <value type="QString">/opt/QtOSD/bin</value>
        <value type="QString">/opt/QtOSD/qml/QtOSD</value>
       </valuelist>
@@ -243,14 +243,14 @@
        <value type="QString">/home/oswin/opt/rasp-pi-rootfs</value>
       </valuelist>
       <valuelist type="QVariantList" key="Qt4ProjectManager.MaemoRunConfiguration.LastDeployedTimes">
-       <value type="QDateTime">2014-05-20T00:43:40</value>
-       <value type="QDateTime">2014-05-19T23:06:32</value>
-       <value type="QDateTime">2014-05-19T23:06:31</value>
+       <value type="QDateTime">2014-05-20T00:47:27</value>
+       <value type="QDateTime">2014-06-01T18:39:52</value>
        <value type="QDateTime">2014-04-30T12:24:03</value>
-       <value type="QDateTime">2014-05-19T23:06:38</value>
-       <value type="QDateTime">2014-05-20T00:43:40</value>
-       <value type="QDateTime">2014-05-20T00:43:40</value>
+       <value type="QDateTime">2014-05-20T00:47:28</value>
        <value type="QDateTime">2014-04-25T18:05:44</value>
+       <value type="QDateTime">2014-06-01T18:39:52</value>
+       <value type="QDateTime">2014-05-20T00:47:27</value>
+       <value type="QDateTime">2014-06-01T18:39:54</value>
        <value type="QDateTime">2014-04-25T14:36:15</value>
       </valuelist>
       <value type="bool" key="RemoteLinux.GenericDirectUploadStep.IgnoreMissingFiles">false</value>
