@@ -35,7 +35,7 @@ class PositionRecorder(threading.Thread):
         self.imu_changed = False
         self.gps_changed = False
 
-        self.speed = 0
+        self.speed = 0.0
         self.climb = 0
 
         self.latitude = 0
@@ -43,6 +43,13 @@ class PositionRecorder(threading.Thread):
 
         self.altitude = 0
         self.pressure_ref = 0
+
+        self.gyro_scaled_x = 0
+        self.gyro_scaled_y = 0
+        self.gyro_scaled_z = 0
+        self.accel_scaled_x = 0
+        self.accel_scaled_y = 0
+        self.accel_scaled_z = 0
 
         self.temperature = 0
 
@@ -62,22 +69,22 @@ class PositionRecorder(threading.Thread):
 
 
         # Wait for GFS fix
-        print("Waiting for GPS fix")
-        while not self.gps_fixed:
-            time.sleep(1)
+        # print("Waiting for GPS fix")
+        # while not self.gps_fixed:
+        #     time.sleep(1)
+        #
+        #     if self.gps.is_new_data():
+        #         self.gps_data = self.gps.get_data()
+        #         if self.gps_data.nb_sats >= 3:
+        #             self.gps_fixed = True
+        #         else:
+        #             print(" > Only " + str(self.gps_data.nb_sats) + " sats")
+        #
+        # print("GPS fixed")
 
-            if self.gps.is_new_data():
-                self.gps_data = self.gps.get_data()
-                if self.gps_data.nb_sats >= 3:
-                    self.gps_fixed = True
-                else:
-                    print(" > Only " + str(self.gps_data.nb_sats) + " sats")
-
-        print("GPS fixed")
-
-        print("Setting board time with GPS time (UTC)")
-        _linux_set_time(self.gps_data.time)
-        print("Board time is now " + datetime.datetime.fromtimestamp(time.time()).strftime('%d.%m.%Y %H:%M:%S'))
+        # print("Setting board time with GPS time (UTC)")
+        # _linux_set_time(self.gps_data.time)
+        # print("Board time is now " + datetime.datetime.fromtimestamp(time.time()).strftime('%d.%m.%Y %H:%M:%S'))
 
         self.writer.writerow([
             "time",
@@ -85,7 +92,9 @@ class PositionRecorder(threading.Thread):
             "speed", "climb",
             "lat", "lon",
             "alt", "temp",
-            "track", "mode", "sats"
+            "track", "mode", "sats",
+            "gyro_scaled_x", "gyro_scaled_y", "gyro_scaled_z",
+            "accel_scaled_x", "accel_scaled_y", "accel_scaled_z"
         ])
 
         self.imu_data = self.imu.get_data()
@@ -128,7 +137,6 @@ class PositionRecorder(threading.Thread):
             if not imu_new and not gps_new:
                 continue
 
-
             # Compute final data
             if gps_new:
 
@@ -137,7 +145,7 @@ class PositionRecorder(threading.Thread):
                 self.time = self.gps_data.time
                 self.gps_time = self.time
 
-                self.speed = self.gps_data.speed
+                self.speed = self.gps_data.speed*3.6
                 self.climb = self.gps_data.climb
 
                 self.latitude = self.gps_data.latitude
@@ -157,8 +165,17 @@ class PositionRecorder(threading.Thread):
 
                     self.time += imu_time_delta
 
-                    self.speed += self.imu_data.accel_scaled_x*imu_time_delta
+                    self.speed += self.imu_data.accel_scaled_x*imu_time_delta*3.6
                     self.climb += self.imu_data.accel_scaled_z*imu_time_delta
+
+
+                    self.gyro_scaled_x = self.imu_data.gyro_scaled_x
+                    self.gyro_scaled_y = self.imu_data.gyro_scaled_y
+                    self.gyro_scaled_z = self.imu_data.gyro_scaled_z
+
+                    self.accel_scaled_x = self.imu_data.accel_scaled_x
+                    self.accel_scaled_y = self.imu_data.accel_scaled_y
+                    self.accel_scaled_z = self.imu_data.accel_scaled_z
 
                     self.altitude = self.gps_data.altitude + (self.imu_data.pressure-self.pressure_ref)*8
 
@@ -175,12 +192,14 @@ class PositionRecorder(threading.Thread):
                 self.speed, self.climb,
                 self.latitude, self.longitude,
                 self.altitude, self.temperature,
-                self.track, self.mode, self.nb_sats
+                self.track, self.mode, self.nb_sats,
+                self.gyro_scaled_x, self.gyro_scaled_y, self.gyro_scaled_z,
+                self.accel_scaled_x, self.accel_scaled_y, self.accel_scaled_z
             ])
             self.output.flush()
 
-            speeds.append(self.speed)
-            times.append(self.time)
+            # speeds.append(self.speed)
+            # times.append(self.time)
 
             # f.set_ydata(speeds)
             # f.set_xdata(times)
