@@ -3,6 +3,7 @@ import os
 import sys
 import uuid
 import ConfigParser
+import datetime
 
 DOSSIER_COURRANT = os.path.dirname(os.path.abspath(__file__))
 DOSSIER_PARENT = os.path.dirname(DOSSIER_COURRANT)
@@ -13,7 +14,7 @@ import position.PositionRecorder as PositionRecorder
 
 
 # Define record folder and links
-subdir = "record_" + str(time.time()) + "_" + str(uuid.uuid1()) + "/"
+subdir = "record_" + datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S') + "/"
 directory = "records/" + subdir
 
 if not os.path.exists(directory):
@@ -42,7 +43,7 @@ else:
 
 
 
-pos = PositionRecorder.PositionRecorder(directory, magnetometer_calibration)
+pos = PositionRecorder.PositionRecorder(subdir, magnetometer_calibration)
 #video = VideoRecorder.VideoRecorder(directory + "video.h264")
 
 try:

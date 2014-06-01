@@ -2,26 +2,30 @@ from gps import *
 import csv
 import threading
 import datetime
+import ConfigParser
+import os
 
 import GPSReader as GPSReader
 import IMUReader as IMUReader
-# import pylab
 
 class PositionRecorder(threading.Thread):
 
-    def __init__(self, directory, magnetometer_calibration):
+    def __init__(self, single_record_dir, magnetometer_calibration):
         threading.Thread.__init__(self)
 
-        self.sim = False
+        self.set_config('config/position.cfg')
 
-        self.imu = IMUReader.ImuReader(magnetometer_calibration, self.sim, 'records/feed/data_imu.csv')
-        self.gps = GPSReader.GpsReader(self.sim, 'records/feed/data_gps.csv')
+        self.imu = IMUReader.ImuReader(magnetometer_calibration, self.sim, self.path + 'feed/data_imu.csv')
+        self.gps = GPSReader.GpsReader(self.sim, self.path + 'feed/data_gps.csv')
 
         self.imu.start()
         self.gps.start()
 
-        self.output = open(directory + 'data_pos.csv', "wb")
-        #self.output = open('/dev/stdout', "wb")
+        if self.to_stdout:
+            self.output = open('/dev/stdout', "wb")
+        else:
+            self.output = open(self.path + single_record_dir + self.filename, "wb")
+
         self.writer = csv.writer(self.output, delimiter='\t', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
         self.running = False
 
@@ -61,41 +65,76 @@ class PositionRecorder(threading.Thread):
         self.roll = 0
         self.yaw = 0
 
+    def set_config(self, config_file):
+        config = ConfigParser.RawConfigParser()
+
+        if os.path.exists(config_file):
+            config.read(config_file)
+
+            self.to_stdout = config.getboolean('general', 'to_stdout')
+
+            self.sim = config.getboolean('simulation', 'sim')
+
+            self.print_header = config.getboolean('file', 'print_header')
+            self.path = config.get('file', 'path')
+            self.filename = config.get('file', 'filename')
+
+            self.wait_gps = config.getboolean('gps', 'wait_gps')
+            self.nb_min_sat = config.getint('gps', 'nb_min_sat')
+            self.autoset_time = config.getboolean('gps', 'autoset_time')
+
+        else:
+            print("No config file found for position recorder at " + config_file + ". Default config loaded.")
+
+            self.to_stdout = False
+
+            self.sim = False
+
+            self.print_header = True
+            self.path = 'records/'
+            self.filename = 'data_pos.csv'
+
+            self.wait_gps = True
+            self.nb_min_sat = 3
+            self.autoset_time = True
+
     def run(self):
         self.running = True
 
         speeds = []
         times = []
 
+        if self.wait_gps:
+            # Wait for GFS fix
+            print("Waiting for GPS fix")
+            while not self.gps_fixed and self.running:
+                time.sleep(1)
 
-        # Wait for GFS fix
-        # print("Waiting for GPS fix")
-        # while not self.gps_fixed:
-        #     time.sleep(1)
-        #
-        #     if self.gps.is_new_data():
-        #         self.gps_data = self.gps.get_data()
-        #         if self.gps_data.nb_sats >= 3:
-        #             self.gps_fixed = True
-        #         else:
-        #             print(" > Only " + str(self.gps_data.nb_sats) + " sats")
-        #
-        # print("GPS fixed")
+                if self.gps.is_new_data():
+                    self.gps_data = self.gps.get_data()
+                    if self.gps_data.nb_sats >= self.nb_min_sat:
+                        self.gps_fixed = True
+                    else:
+                        print(" > Only " + str(self.gps_data.nb_sats) + " sats")
 
-        # print("Setting board time with GPS time (UTC)")
-        # _linux_set_time(self.gps_data.time)
-        # print("Board time is now " + datetime.datetime.fromtimestamp(time.time()).strftime('%d.%m.%Y %H:%M:%S'))
+            print("GPS fixed")
 
-        self.writer.writerow([
-            "time",
-            "pitch", "roll", "yaw",
-            "speed", "climb",
-            "lat", "lon",
-            "alt", "temp",
-            "track", "mode", "sats",
-            "gyro_scaled_x", "gyro_scaled_y", "gyro_scaled_z",
-            "accel_scaled_x", "accel_scaled_y", "accel_scaled_z"
-        ])
+            if self.autoset_time:
+                print("Setting board time with GPS time (UTC)")
+                _linux_set_time(self.gps_data.time)
+                print("Board time is now " + datetime.datetime.fromtimestamp(time.time()).strftime('%d.%m.%Y %H:%M:%S'))
+
+        if self.print_header:
+            self.writer.writerow([
+                "time",
+                "pitch", "roll", "yaw",
+                "speed", "climb",
+                "lat", "lon",
+                "alt", "temp",
+                "track", "mode", "sats",
+                "gyro_scaled_x", "gyro_scaled_y", "gyro_scaled_z",
+                "accel_scaled_x", "accel_scaled_y", "accel_scaled_z"
+            ])
 
         self.imu_data = self.imu.get_data()
         self.gps_data = self.gps.get_data()
@@ -105,11 +144,6 @@ class PositionRecorder(threading.Thread):
         self.imu_time = self.imu_data.time
 
         time_offset = time.time()-self.gps_time
-
-        print("Time offset is : " + str(time_offset))
-
-        # f = pylab.figure()
-        # f.show()
 
         while self.running:
 
@@ -122,9 +156,6 @@ class PositionRecorder(threading.Thread):
             # Read data from sensors
             imu_new = self.imu.is_new_data()
             gps_new = self.gps.is_new_data()
-
-            # imu_new = False
-            # gps_new = False
 
             if imu_new:
                 self.imu_data_old = self.imu_data
@@ -179,9 +210,9 @@ class PositionRecorder(threading.Thread):
 
                     self.altitude = self.gps_data.altitude + (self.imu_data.pressure-self.pressure_ref)*8
 
-            self.pitch = self.imu_data.pitch
-            self.roll = self.imu_data.roll
-            self.yaw = self.imu_data.yaw
+            self.pitch = self.imu_data.pitch*180/math.pi
+            self.roll = self.imu_data.roll*180/math.pi
+            self.yaw = self.imu_data.yaw*180/math.pi
 
             self.temperature = self.imu_data.temperature
 
@@ -196,15 +227,7 @@ class PositionRecorder(threading.Thread):
                 self.gyro_scaled_x, self.gyro_scaled_y, self.gyro_scaled_z,
                 self.accel_scaled_x, self.accel_scaled_y, self.accel_scaled_z
             ])
-            self.output.flush()
-
-            # speeds.append(self.speed)
-            # times.append(self.time)
-
-            # f.set_ydata(speeds)
-            # f.set_xdata(times)
-            # pylab.plot(speeds)
-            # pylab.draw()
+            self.output.flush() # In live show using this is essential to avoid 1 sec buffering
 
     def stop(self):
         self.running = False
