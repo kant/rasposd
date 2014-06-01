@@ -4,9 +4,13 @@ import threading
 import datetime
 import ConfigParser
 import os
+from time import sleep
 
 import GPSReader as GPSReader
 import IMUReader as IMUReader
+
+RAD_TO_DEG = 57.2957795131 # 180/math.pi
+MPS_TO_KPH = 3.6
 
 class PositionRecorder(threading.Thread):
 
@@ -157,6 +161,10 @@ class PositionRecorder(threading.Thread):
             imu_new = self.imu.is_new_data()
             gps_new = self.gps.is_new_data()
 
+            if not imu_new and not gps_new:
+                sleep(0.01)
+                continue
+
             if imu_new:
                 self.imu_data_old = self.imu_data
                 self.imu_data = self.imu.get_data()
@@ -165,19 +173,30 @@ class PositionRecorder(threading.Thread):
                 self.gps_data_old = self.gps_data
                 self.gps_data = self.gps.get_data()
 
-            if not imu_new and not gps_new:
-                continue
+            if imu_new:
+                self.roll = self.imu_data.roll*RAD_TO_DEG
+                self.pitch = self.imu_data.pitch*RAD_TO_DEG
+                self.yaw = self.imu_data.yaw*RAD_TO_DEG
+
+                self.gyro_scaled_x = self.imu_data.gyro_scaled_x
+                self.gyro_scaled_y = self.imu_data.gyro_scaled_y
+                self.gyro_scaled_z = self.imu_data.gyro_scaled_z
+
+                self.accel_scaled_x = self.imu_data.accel_scaled_x
+                self.accel_scaled_y = self.imu_data.accel_scaled_y
+                self.accel_scaled_z = self.imu_data.accel_scaled_z
+
+                self.temperature = self.imu_data.temperature
 
             # Compute final data
             if gps_new:
-
                 self.gps_data = self.gps.get_data()
 
                 self.time = self.gps_data.time
                 self.gps_time = self.time
 
-                self.speed = self.gps_data.speed*3.6
-                self.climb = self.gps_data.climb
+                self.speed = self.gps_data.speed*MPS_TO_KPH
+                self.climb = self.gps_data.climb*MPS_TO_KPH
 
                 self.latitude = self.gps_data.latitude
                 self.longitude = self.gps_data.longitude
@@ -188,6 +207,7 @@ class PositionRecorder(threading.Thread):
                 self.track = self.gps_data.track
                 self.mode = self.gps_data.mode
                 self.nb_sats = self.gps_data.nb_sats
+
             else:
                 if imu_new:
 
@@ -196,25 +216,10 @@ class PositionRecorder(threading.Thread):
 
                     self.time += imu_time_delta
 
-                    self.speed += self.imu_data.accel_scaled_x*imu_time_delta*3.6
-                    self.climb += self.imu_data.accel_scaled_z*imu_time_delta
-
-
-                    self.gyro_scaled_x = self.imu_data.gyro_scaled_x
-                    self.gyro_scaled_y = self.imu_data.gyro_scaled_y
-                    self.gyro_scaled_z = self.imu_data.gyro_scaled_z
-
-                    self.accel_scaled_x = self.imu_data.accel_scaled_x
-                    self.accel_scaled_y = self.imu_data.accel_scaled_y
-                    self.accel_scaled_z = self.imu_data.accel_scaled_z
+                    self.speed += self.accel_scaled_x*imu_time_delta*MPS_TO_KPH
+                    self.climb += self.accel_scaled_z*imu_time_delta*MPS_TO_KPH
 
                     self.altitude = self.gps_data.altitude + (self.imu_data.pressure-self.pressure_ref)*8
-
-            self.pitch = self.imu_data.pitch*180/math.pi
-            self.roll = self.imu_data.roll*180/math.pi
-            self.yaw = self.imu_data.yaw*180/math.pi
-
-            self.temperature = self.imu_data.temperature
 
             # Write data line to CSV file
             self.writer.writerow([
