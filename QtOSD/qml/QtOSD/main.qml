@@ -11,12 +11,6 @@ Rectangle {
     property double roll: 0
     property double speed: 0
 
-    property double roll_max: 2.5883750748
-    property double roll_min: -3.7320618556
-
-    property double pitch_max: 3.5
-    property double pitch_min: -3.5
-
     property int horizon_max_offset: 200
 
     property int font_size: 15
@@ -29,6 +23,9 @@ Rectangle {
     property int refresh_interval: 20
 
     property bool sim: false
+
+    property double start_longitude
+    property double start_latitude
 
     color: "transparent"
 
@@ -51,7 +48,23 @@ Rectangle {
 
         horizontalAlignment: Text.AlignRight
 
-        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.margins: 10
+    }
+
+    Text {
+        id: lblLongitude
+        text: "Longitude"
+
+        font.pointSize: font_size
+        font.family: text_font
+
+        color: text_color
+        style: Text.Outline;
+        styleColor: text_outline_color
+
+        anchors.left: parent.horizontalCenter
         anchors.top: parent.top
         anchors.margins: 10
     }
@@ -67,14 +80,14 @@ Rectangle {
         style: Text.Outline;
         styleColor: text_outline_color
 
-        anchors.right: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.margins: 10
+        anchors.left: lblLongitude.left
+        anchors.top: lblLongitude.bottom
     }
 
+
     Text {
-        id: lblLongitude
-        text: "/ Longitude"
+        id: lblStartLongitude
+        text: start_longitude
 
         font.pointSize: font_size
         font.family: text_font
@@ -83,10 +96,26 @@ Rectangle {
         style: Text.Outline;
         styleColor: text_outline_color
 
-        anchors.left: parent.horizontalCenter
+        anchors.left: parent.left
         anchors.top: parent.top
         anchors.margins: 10
     }
+
+    Text {
+        id: lblStartLatitude
+        text: start_latitude
+
+        font.pointSize: font_size
+        font.family: text_font
+
+        color: text_color
+        style: Text.Outline;
+        styleColor: text_outline_color
+
+        anchors.left: lblStartLongitude.left
+        anchors.top: lblStartLongitude.bottom
+    }
+
 
 
     Text {
@@ -223,6 +252,7 @@ Rectangle {
 
         property variant labels
         property bool reversed: true
+
     }
 
     function refresh() {
@@ -252,6 +282,7 @@ Rectangle {
         lblHeure.text = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()
     }
 
+
     function directionLabels() {
         var labels = [];
         labels[0] = ' N ';
@@ -269,11 +300,10 @@ Rectangle {
     FileIO {
         id: data
 
-//        source: "/home/pi/pilotage-fpv/recorder/records/last/data_pos.csv"
-        source: "/home/pi/testing/recorder/records/last/data_pos.csv"
+        source: "/home/pi/pilotage-fpv/recorder/records/last/data_pos.csv"
+//        source: "/home/pi/testing/recorder/records/last/data_pos.csv"
 //        source: "/home/oswin/projects/pilotage-fpv/recorder/records/last/data_pos.csv"
 //        source: "/home/oswin/projects/pilotage-fpv/recorder/records/velo_plaisante.csv"
-//        DataType: LIVE
 
         onError: console.log(msg)
     }
@@ -282,6 +312,9 @@ Rectangle {
         data.open();
 
         direction_ruler.labels = directionLabels();
+
+        start_longitude = parseFloat(data.getValue(FileIO.LONGITUDE))
+        start_latitude = parseFloat(data.getValue(FileIO.LATITUDE))
     }
 
     Timer {

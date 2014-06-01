@@ -182,6 +182,9 @@ Rectangle {
 
         var labelVal = (ruler.value-ruler.value%ruler.step)+(nb_big_slots-index)*ruler.step-(ruler.step*nb_big_slots/2+(ruler.step*nb_big_slots/2%ruler.step))
 
+        if (typeof(ruler.cycle) != 'undefined' && ruler.cycle > 0)
+            labelVal = (labelVal+ruler.cycle)%ruler.cycle
+
         if (typeof(ruler.labels) != 'undefined' && typeof(ruler.labels[labelVal]) != 'undefined')
             return ruler.labels[labelVal]
 
