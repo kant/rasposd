@@ -72,11 +72,7 @@ class BMP085(object):
             b5 = x1 + x2
             t = (b5 + 8) / 16
 
-        except IOError:
-            print("I2C error, temperature read abort")
-            t = 0;
 
-        try:
             I2CUtils.i2c_write_byte(self.bus, self.address, 0xF4, 0x34 + (self.oss << 6))  # Tell the sensor to take a pressure reading
             time.sleep(self.pressure_wait_period)  # Wait for the conversion to take place
             pressure_raw = ((I2CUtils.i2c_read_byte(self.bus, self.address, 0xF6) << 16) \
@@ -106,7 +102,9 @@ class BMP085(object):
             p = p + ((x1 + x2 + 3791) >> 4)
 
         except IOError:
-            print("I2C error, pressure read abort")
+
+            print("I2C error, temperature and pressure read abort")
+            t = 0;
             p = 0;
 
 

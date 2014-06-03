@@ -1,7 +1,7 @@
 from gps import *
 import time
 import threading
-import datetime
+import dateutil.parser as dateparser
 
 from position.GPSRecord import GPSRecord
 
@@ -29,7 +29,7 @@ class GpsDataset:
         try:
             fix.time = float(fix.time)
         except ValueError:
-            fix.time = time.mktime(datetime.datetime.strptime(fix.time, "%Y-%m-%dT%H:%M:%S.000Z").timetuple())
+            fix.time = calendar.timegm(dateparser.parse(fix.time).timetuple())
 
         self.time = fix.time
         self.ept = fix.ept
