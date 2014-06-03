@@ -6,17 +6,27 @@ Rectangle {
     height: 576
 
     property double altitude: 0
+    property double speed: 0
+    property double temperature: 0
+
     property double yaw: 0
     property double pitch: 0
     property double roll: 0
-    property double speed: 0
 
+    property int saved_angle: 0
+
+    property int horizon_voffset: 0
     property int horizon_max_offset: 200
 
     property int font_size: 15
 
     property string text_color: "white"
     property string text_outline_color: "black"
+
+    property string date: ""
+    property string hour: ""
+
+    property string source_file_path: "/home/pi/pilotage-fpv/recorder/records/last/data_pos.csv"
 
     property string text_font: "arial"
 
@@ -26,6 +36,9 @@ Rectangle {
 
     property double start_longitude
     property double start_latitude
+
+    property double longitude
+    property double latitude
 
     color: "transparent"
 
@@ -45,6 +58,7 @@ Rectangle {
         style: Text.Outline;
         styleColor: text_outline_color
 
+        text: temperature  + "°C"
 
         horizontalAlignment: Text.AlignRight
 
@@ -55,7 +69,7 @@ Rectangle {
 
     Text {
         id: lblLongitude
-        text: "Longitude"
+        text: longitude
 
         font.pointSize: font_size
         font.family: text_font
@@ -71,7 +85,7 @@ Rectangle {
 
     Text {
         id: lblLatitude
-        text: "Latitude"
+        text: latitude
 
         font.pointSize: font_size
         font.family: text_font
@@ -117,10 +131,9 @@ Rectangle {
     }
 
 
-
     Text {
         id: lblDate
-        text: "2014.05.13"
+        text: date
 
         font.pointSize: font_size
         font.family: text_font
@@ -156,7 +169,7 @@ Rectangle {
 
     Text {
         id: lblHeure
-        text: "13:37:23"
+        text: hour
 
         font.pointSize: font_size
         font.family: text_font
@@ -182,13 +195,28 @@ Rectangle {
         anchors.centerIn: parent
         rotation: roll
 
-        anchors.verticalCenterOffset: pitch
+        anchors.verticalCenterOffset: horizon_voffset
 
         // Aspect
         color: "#80008000"
         border.color: "#C0FFFFFF"
         border.width: 1
-        // smooth: true // did not work
+//        smooth: true // did not work
+    }
+
+
+    Rectangle {
+        id: home_indicator
+
+        width: 20
+        height:2
+
+        anchors.centerIn: parent
+
+        // Aspect
+        color: "#80008000"
+        border.color: "#C0FFFFFF"
+        border.width: 1
     }
 
 
@@ -202,7 +230,7 @@ Rectangle {
         anchors.centerIn: parent
         anchors.horizontalCenterOffset: 300
 
-        property double value: 834
+        property double value: altitude
         property int nb_big_slots: 5
         property int nb_small_slots: 5
 
@@ -240,19 +268,16 @@ Rectangle {
         anchors.verticalCenterOffset: -150
 
         rotation: -90
+        property bool reversed: true
 
-        property double value: 0
+        property double value: yaw
+
         property int nb_big_slots: 5
         property int nb_small_slots: 1
-
-
         property int step: 45
-
         property double cycle: 360
 
         property variant labels
-        property bool reversed: true
-
     }
 
     function refresh() {
@@ -264,22 +289,27 @@ Rectangle {
         }
 
         horizon.rotation = parseFloat(data.getValue(FileIO.ROLL))
-        pitch = -(Math.atan(parseFloat(data.getValue(FileIO.PITCH))/40)*horizon_max_offset)
+        horizon_voffset = -(Math.atan(parseFloat(data.getValue(FileIO.PITCH))/40)*horizon_max_offset)
 
 
         velocity_ruler.value = parseFloat(data.getValue(FileIO.SPEED));
-        altitude_ruler.value = parseFloat(data.getValue(FileIO.ALTITUDE));
-        direction_ruler.value = parseFloat(data.getValue(FileIO.YAW))
+        altitude = parseFloat(data.getValue(FileIO.ALTITUDE));
+        yaw = parseFloat(data.getValue(FileIO.YAW))
 
 
-        lblTemperature.text = data.getValue(FileIO.TEMPERATURE) + "°C";
+        temperature = parseFloat(data.getValue(FileIO.TEMPERATURE));
 
-        lblLongitude.text = parseFloat(data.getValue(FileIO.LONGITUDE))
-        lblLatitude.text = parseFloat(data.getValue(FileIO.LATITUDE))
+        longitude = parseFloat(data.getValue(FileIO.LONGITUDE))
+        latitude = parseFloat(data.getValue(FileIO.LATITUDE))
 
-        var date = new Date(data.getValue(FileIO.TIME)*1000);
-        lblDate.text = date.getDate() + "." + date.getMonth() + "." + date.getFullYear()
-        lblHeure.text = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()
+        var currentDate = new Date(data.getValue(FileIO.TIME)*1000);
+        date = currentDate.getDate() + "." + currentDate.getMonth() + "." + currentDate.getFullYear()
+        hour = currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds()
+
+        var angle = Math.atan((latitude-start_latitude)/(longitude-start_longitude))-yaw/(180/Math.PI);
+        home_indicator.rotation = angle*180/Math.PI
+        home_indicator.anchors.verticalCenterOffset = 150*Math.sin(angle);
+        home_indicator.anchors.horizontalCenterOffset = 150*Math.cos(angle);
     }
 
 
@@ -299,17 +329,13 @@ Rectangle {
 
     FileIO {
         id: data
-
-        source: "/home/pi/pilotage-fpv/recorder/records/last/data_pos.csv"
-//        source: "/home/pi/testing/recorder/records/last/data_pos.csv"
-//        source: "/home/oswin/projects/pilotage-fpv/recorder/records/last/data_pos.csv"
-//        source: "/home/oswin/projects/pilotage-fpv/recorder/records/velo_plaisante.csv"
-
+        source: source_file_path
         onError: console.log(msg)
     }
 
     Component.onCompleted: {
         data.open();
+        data.readLastLine();
 
         direction_ruler.labels = directionLabels();
 
