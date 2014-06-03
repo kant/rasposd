@@ -44,13 +44,13 @@ else:
 
 
 pos = PositionRecorder.PositionRecorder(subdir, magnetometer_calibration)
-video = VideoRecorder.VideoRecorder(directory + "video.h264")
+#video = VideoRecorder.VideoRecorder(directory + "video.h264")
 
 try:
     print "Starting position recorder"
     pos.start()
     print "Starting video recorder"
-    video.start()
+    #video.start()
 
     print "Now recording..."
     while True:
@@ -67,12 +67,12 @@ except:
 
 finally:
     print "Stopping recorders"
-    video.stop()
+    #video.stop()
     pos.stop()
 
     # wait for the treads to finish
     print "- Wait for video recorder"
-    video.join()
+    #video.join()
     print "- Wait for position recorder"
     pos.join()
 

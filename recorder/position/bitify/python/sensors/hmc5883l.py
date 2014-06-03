@@ -140,7 +140,7 @@ class HMC5883L(object):
         minz = 0
         maxz = 0
 
-        for i in range(0,100):
+        for i in range(0,200):
 
             raw_data = I2CUtils.i2c_read_block(self.bus, self.address, HMC5883L.DATA_START_BLOCK, 6)
             x_out = I2CUtils.twos_compliment(raw_data[HMC5883L.DATA_XOUT_H], raw_data[HMC5883L.DATA_XOUT_L])

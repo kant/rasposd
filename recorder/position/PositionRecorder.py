@@ -76,6 +76,7 @@ class PositionRecorder(threading.Thread):
             config.read(config_file)
 
             self.to_stdout = config.getboolean('general', 'to_stdout')
+            self.front_axe = config.get('general', 'front_axe')
 
             self.sim = config.getboolean('simulation', 'sim')
 
@@ -87,10 +88,13 @@ class PositionRecorder(threading.Thread):
             self.nb_min_sat = config.getint('gps', 'nb_min_sat')
             self.autoset_time = config.getboolean('gps', 'autoset_time')
 
+            self.north_offset = config.getint('compass', 'north_offset')
+
         else:
             print("No config file found for position recorder at " + config_file + ". Default config loaded.")
 
             self.to_stdout = False
+            self.front_axe = 'y'
 
             self.sim = False
 
@@ -101,6 +105,8 @@ class PositionRecorder(threading.Thread):
             self.wait_gps = True
             self.nb_min_sat = 3
             self.autoset_time = True
+
+            self.north_offset = 0
 
     def run(self):
         self.running = True
@@ -161,6 +167,7 @@ class PositionRecorder(threading.Thread):
             imu_new = self.imu.is_new_data()
             gps_new = self.gps.is_new_data()
 
+            # If we got no new data, sleep a bit so we don't overload CPU
             if not imu_new and not gps_new:
                 sleep(0.01)
                 continue
@@ -174,9 +181,17 @@ class PositionRecorder(threading.Thread):
                 self.gps_data = self.gps.get_data()
 
             if imu_new:
-                self.roll = self.imu_data.roll*RAD_TO_DEG
-                self.pitch = self.imu_data.pitch*RAD_TO_DEG
-                self.yaw = self.imu_data.yaw*RAD_TO_DEG
+                if self.front_axe == 'y':
+                    self.roll = self.imu_data.roll*RAD_TO_DEG
+                    self.pitch = self.imu_data.pitch*RAD_TO_DEG
+                else:
+                    if self.front_axe == 'x':
+                        self.roll = self.imu_data.pitch*RAD_TO_DEG
+                        self.pitch = self.imu_data.roll*RAD_TO_DEG
+                    else:
+                        print("Error, " + self.front_axe + " is not a valid front axe, put x or y")
+
+                self.yaw = self.imu_data.yaw*RAD_TO_DEG+self.north_offset
 
                 self.gyro_scaled_x = self.imu_data.gyro_scaled_x
                 self.gyro_scaled_y = self.imu_data.gyro_scaled_y
@@ -216,7 +231,7 @@ class PositionRecorder(threading.Thread):
 
                     self.time += imu_time_delta
 
-                    self.speed += self.accel_scaled_x*imu_time_delta*MPS_TO_KPH
+                    self.speed += (self.accel_scaled_y-abs(90-abs(self.pitch))/90)*imu_time_delta*MPS_TO_KPH
                     self.climb += self.accel_scaled_z*imu_time_delta*MPS_TO_KPH
 
                     self.altitude = self.gps_data.altitude + (self.imu_data.pressure-self.pressure_ref)*8
