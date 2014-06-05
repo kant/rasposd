@@ -35,11 +35,12 @@ void FileIO::open()
 
 void FileIO::readLastLine()
 {
-
+    /* Go to the end of the file */
     file->seek(file->size()-1);
 
     int count = 0;
 
+    /* Go two lines back */
     while ( (count < 2) && (file->pos() > 0) )
     {
         char ch;
@@ -50,8 +51,12 @@ void FileIO::readLastLine()
             count++;
     }
 
+    /* Get the line where the pointer is, the second to last line 
+     * We don't want the last, it could be uncomplete
+     */
     QString r = file->readAll();
 
+    /* Split the columns */
     currentLine = r.split('\t');
 
     return;
@@ -60,13 +65,15 @@ void FileIO::readLastLine()
 
 void FileIO::readNextLine()
 {
+    /* If the last data was consumed, read a new one */
     if(!reuse) {
         QString nextLineRaw = file->readLine();
         nextLine = nextLineRaw.split('\t');
     }
-    reuse = false;
 
+    /* If the next line is in the "past or present" of the simulation, use it */
     if( nextLine.value(TIME).toDouble() <= currentSimTime )
+        reuse = false;
         currentLine = nextLine;
     else
         reuse = true;
@@ -75,6 +82,7 @@ void FileIO::readNextLine()
 
 QString FileIO::getValue(FlightData index)
 {
+    /* Getting the value at the given index. Index depend on FlightData enum type */
     return currentLine.value(index);
 }
 

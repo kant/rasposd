@@ -234,7 +234,7 @@ class PositionRecorder(threading.Thread):
                     self.speed += (self.accel_scaled_y-abs(90-abs(self.pitch))/90)*imu_time_delta*MPS_TO_KPH
                     self.climb += self.accel_scaled_z*imu_time_delta*MPS_TO_KPH
 
-                    self.altitude = self.gps_data.altitude + (self.imu_data.pressure-self.pressure_ref)*8
+                    self.altitude = self.gps_data.altitude + (self.imu_data.pressure-self.pressure_ref)*8.7
 
             # Write data line to CSV file
             self.writer.writerow([
