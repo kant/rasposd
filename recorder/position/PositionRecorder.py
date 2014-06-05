@@ -50,6 +50,7 @@ class PositionRecorder(threading.Thread):
         self.longitude = 0
 
         self.altitude = 0
+        self.pressure = 0
         self.pressure_ref = 0
 
         self.gyro_scaled_x = 0
@@ -143,7 +144,8 @@ class PositionRecorder(threading.Thread):
                 "alt", "temp",
                 "track", "mode", "sats",
                 "gyro_scaled_x", "gyro_scaled_y", "gyro_scaled_z",
-                "accel_scaled_x", "accel_scaled_y", "accel_scaled_z"
+                "accel_scaled_x", "accel_scaled_y", "accel_scaled_z",
+                "pressure"
             ])
 
         self.imu_data = self.imu.get_data()
@@ -202,6 +204,7 @@ class PositionRecorder(threading.Thread):
                 self.accel_scaled_z = self.imu_data.accel_scaled_z
 
                 self.temperature = self.imu_data.temperature
+                self.pressure = self.imu_data.pressure
 
             # Compute final data
             if gps_new:
@@ -210,8 +213,8 @@ class PositionRecorder(threading.Thread):
                 self.time = self.gps_data.time
                 self.gps_time = self.time
 
-                self.speed = self.gps_data.speed*MPS_TO_KPH
-                self.climb = self.gps_data.climb*MPS_TO_KPH
+                self.speed = self.gps_data.speed
+                self.climb = self.gps_data.climb
 
                 self.latitude = self.gps_data.latitude
                 self.longitude = self.gps_data.longitude
@@ -231,10 +234,18 @@ class PositionRecorder(threading.Thread):
 
                     self.time += imu_time_delta
 
-                    self.speed += (self.accel_scaled_y-abs(90-abs(self.pitch))/90)*imu_time_delta*MPS_TO_KPH
-                    self.climb += self.accel_scaled_z*imu_time_delta*MPS_TO_KPH
+                    if self.pitch%360 < 90:
+                        norm_correct = self.pitch/90
+                    else:
+                        if self.pitch%360 < 270:
+                            norm_correct = 2-self.pitch/90
+                        else:
+                            norm_correct = self.pitch/90-4
 
-                    self.altitude = self.gps_data.altitude + (self.imu_data.pressure-self.pressure_ref)*8
+                    self.speed += ((self.accel_scaled_y-norm_correct)*imu_time_delta)*MPS_TO_KPH
+                    #self.climb += self.accel_scaled_z*imu_time_delta*MPS_TO_KPH
+
+                    #self.altitude = self.gps_data.altitude + (self.imu_data.pressure-self.pressure_ref)*8
 
             # Write data line to CSV file
             self.writer.writerow([
@@ -245,7 +256,8 @@ class PositionRecorder(threading.Thread):
                 self.altitude, self.temperature,
                 self.track, self.mode, self.nb_sats,
                 self.gyro_scaled_x, self.gyro_scaled_y, self.gyro_scaled_z,
-                self.accel_scaled_x, self.accel_scaled_y, self.accel_scaled_z
+                self.accel_scaled_x, self.accel_scaled_y, self.accel_scaled_z,
+                self.pressure
             ])
             self.output.flush() # In live show using this is essential to avoid 1 sec buffering
 

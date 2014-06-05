@@ -21,10 +21,23 @@ class BMP085(object):
         self.address = address
         self.name = name
         
-        self.calibration = I2CUtils.i2c_read_block(bus, address, BMP085.CALIB_BLOCK_ADDRESS, BMP085.CALIB_BLOCK_SIZE)
+        try:
+            self.hw_init(bus, address)
+        except IOError:
+            try:
+                print("Barometer hardware init failed, trying again")
+                self.hw_init()
+                print("Hardware init OK")
+            except IOError:
+                print("Hardware init failed twice, your power supply may be too weak. Please run again.")
+                return
+
         self.oss = oss
         self.temp_wait_period = 0.004
         self.pressure_wait_period = 0.0255  # Conversion time
+
+    def hw_init(self, bus, address):
+        self.calibration = I2CUtils.i2c_read_block(bus, address, BMP085.CALIB_BLOCK_ADDRESS, BMP085.CALIB_BLOCK_SIZE)
 
     def twos_compliment(self, val):
         if val >= 0x8000:

@@ -15,6 +15,7 @@ class VideoRecorder(threading.Thread):
 
         self.camera.resolution = (self.resolution_x, self.resolution_y)
         self.camera.rotation = self.rotation
+        self.camera.preview_layer = 0
         self.output = filename
         self.running = False
         

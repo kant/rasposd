@@ -10,9 +10,6 @@ class GY88(object):
     K = 0.98
     K1 = 1 - K
 
-    last_gyro_x = 0
-    last_gyro_y = 0
-
     def __init__(self, bus, gyro_address, compass_address, barometer_address, name, compass_calibration, gyro_scale=MPU6050.FS_2000,
                  accel_scale=MPU6050.AFS_16g):
         self.bus = bus
@@ -84,18 +81,18 @@ class GY88(object):
         Apply a complementary filter to the Gyroscope and Accelerometer data
         '''
 
-        if self.last_gyro_x == 0 or abs(self.last_gyro_x-self.gyro_scaled_x) < 5:
+        if abs(self.gyro_scaled_x) < 15:
             new_pitch = GY88.K * (self.pitch + self.gyro_scaled_x * self.time_diff) + (GY88.K1 * current_x)
-            self.last_gyro_x = self.gyro_scaled_x
         else:
             new_pitch = self.pitch
+            print("Ignored X : " + str(self.gyro_scaled_x))
 
 
-        if self.last_gyro_y == 0 or abs(self.last_gyro_y-self.gyro_scaled_y) < 5:
+        if abs(self.gyro_scaled_y) < 15:
             new_roll = GY88.K * (self.roll + self.gyro_scaled_y * self.time_diff) + (GY88.K1 * current_y)
-            self.last_gyro_y = self.gyro_scaled_y
         else:
             new_roll = self.roll
+            print("Ignored Y : " + str(self.gyro_scaled_y))
 
         return new_pitch, new_roll
 

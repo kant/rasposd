@@ -89,14 +89,26 @@ class MPU6050(object):
         
         self.pitch = 0.0
         self.roll = 0.0
-        
+
+        try:
+            self.hw_init()
+        except IOError:
+            try:
+                print("Accelerometer/gyroscope hardware init failed, trying again")
+                self.hw_init()
+                print("Hardware init OK")
+            except IOError:
+                print("Hardware init failed twice, your power supply may be too weak. Please run again.")
+                return
+
+    def hw_init(self):
         # We need to wake up the module as it start in sleep mode
         I2CUtils.i2c_write_byte(self.bus, self.address, MPU6050.PWR_MGMT_1, 0)
         # Set the gryo resolution
         I2CUtils.i2c_write_byte(self.bus, self.address, MPU6050.FS_SEL, self.fs_scale << 3)
         # Set the accelerometer resolution
         I2CUtils.i2c_write_byte(self.bus, self.address, MPU6050.AFS_SEL, self.afs_scale << 3)
-           
+
     def read_raw_data(self):
         '''
         Read the raw data from the sensor, scale it appropriately and store for later use

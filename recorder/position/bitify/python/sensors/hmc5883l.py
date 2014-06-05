@@ -47,35 +47,51 @@ class HMC5883L(object):
         self.x_offset = x_offset
         self.y_offset = y_offset
         self.z_offset = z_offset
-        
-        # Set the number of samples
-        conf_a = (samples << 5) + (rate << 2)
-        I2CUtils.i2c_write_byte(self.bus, self.address, HMC5883L.CONF_REG_A, conf_a)
-        
-        # Set the gain
-        conf_b = gain << 5
-        I2CUtils.i2c_write_byte(self.bus, self.address, HMC5883L.CONF_REG_B, conf_b)
 
-        # Set the operation mode
-        I2CUtils.i2c_write_byte(self.bus, self.address, HMC5883L.MODE_REG, self.sampling_mode)        
+        try:
+            self.hw_init(samples, rate, gain)
+        except IOError:
+            try:
+                print("Compass hardware init failed, trying again")
+                self.hw_init(samples, rate, gain)
+                print("Hardware init OK")
+            except IOError:
+                print("Hardware init failed twice, your power supply may be too weak. Please run again.")
+                return
 
         self.raw_data = [0, 0, 0, 0, 0, 0]
         
         # Now read all the values as the first read after a gain change returns the old value
         self.read_raw_data()
+
+    def hw_init(self, samples, rate, gain):
+        # Set the number of samples
+        conf_a = (samples << 5) + (rate << 2)
+        I2CUtils.i2c_write_byte(self.bus, self.address, HMC5883L.CONF_REG_A, conf_a)
+
+        # Set the gain
+        conf_b = gain << 5
+        I2CUtils.i2c_write_byte(self.bus, self.address, HMC5883L.CONF_REG_B, conf_b)
+
+        # Set the operation mode
+        I2CUtils.i2c_write_byte(self.bus, self.address, HMC5883L.MODE_REG, self.sampling_mode)
     
     def read_raw_data(self):
         '''
         Read the raw data from the sensor, scale it appropriately and store for later use
         '''
-        self.raw_data = I2CUtils.i2c_read_block(self.bus, self.address, HMC5883L.DATA_START_BLOCK, 6)
-        self.raw_x = I2CUtils.twos_compliment(self.raw_data[HMC5883L.DATA_XOUT_H], self.raw_data[HMC5883L.DATA_XOUT_L]) - self.x_offset
-        self.raw_y = I2CUtils.twos_compliment(self.raw_data[HMC5883L.DATA_YOUT_H], self.raw_data[HMC5883L.DATA_YOUT_L]) - self.y_offset
-        self.raw_z = I2CUtils.twos_compliment(self.raw_data[HMC5883L.DATA_ZOUT_H], self.raw_data[HMC5883L.DATA_ZOUT_L]) - self.z_offset
-    
-        self.scaled_x = self.raw_x * HMC5883L.GAIN_SCALE[self.gain][2]
-        self.scaled_y = self.raw_y * HMC5883L.GAIN_SCALE[self.gain][2]
-        self.scaled_z = self.raw_z * HMC5883L.GAIN_SCALE[self.gain][2]
+
+        try:
+            self.raw_data = I2CUtils.i2c_read_block(self.bus, self.address, HMC5883L.DATA_START_BLOCK, 6)
+            self.raw_x = I2CUtils.twos_compliment(self.raw_data[HMC5883L.DATA_XOUT_H], self.raw_data[HMC5883L.DATA_XOUT_L]) - self.x_offset
+            self.raw_y = I2CUtils.twos_compliment(self.raw_data[HMC5883L.DATA_YOUT_H], self.raw_data[HMC5883L.DATA_YOUT_L]) - self.y_offset
+            self.raw_z = I2CUtils.twos_compliment(self.raw_data[HMC5883L.DATA_ZOUT_H], self.raw_data[HMC5883L.DATA_ZOUT_L]) - self.z_offset
+
+            self.scaled_x = self.raw_x * HMC5883L.GAIN_SCALE[self.gain][2]
+            self.scaled_y = self.raw_y * HMC5883L.GAIN_SCALE[self.gain][2]
+            self.scaled_z = self.raw_z * HMC5883L.GAIN_SCALE[self.gain][2]
+        except IOError:
+            print("Error reading compass, data ignored")
 
     def read_bearing(self):
         '''
