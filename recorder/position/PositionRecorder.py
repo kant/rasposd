@@ -19,8 +19,8 @@ class PositionRecorder(threading.Thread):
 
         self.set_config('config/position.cfg')
 
-        self.imu = IMUReader.ImuReader(magnetometer_calibration, self.sim, self.path + 'feed/data_imu.csv')
-        self.gps = GPSReader.GpsReader(self.sim, self.path + 'feed/data_gps.csv')
+        self.imu = IMUReader.ImuReader(magnetometer_calibration, self.imu_read_freq)
+        self.gps = GPSReader.GpsReader(self.gps_read_freq)
 
         self.imu.start()
         self.gps.start()
@@ -77,7 +77,10 @@ class PositionRecorder(threading.Thread):
             config.read(config_file)
 
             self.to_stdout = config.getboolean('general', 'to_stdout')
-            self.front_axe = config.get('general', 'front_axe')
+
+
+            self.imu_read_freq = config.getint('imu', 'read_frequency')
+            self.front_axe = config.get('imu', 'front_axe')
 
             self.sim = config.getboolean('simulation', 'sim')
 
@@ -85,6 +88,7 @@ class PositionRecorder(threading.Thread):
             self.path = config.get('file', 'path')
             self.filename = config.get('file', 'filename')
 
+            self.gps_read_freq = config.getint('gps', 'read_frequency')
             self.wait_gps = config.getboolean('gps', 'wait_gps')
             self.nb_min_sat = config.getint('gps', 'nb_min_sat')
             self.autoset_time = config.getboolean('gps', 'autoset_time')
@@ -95,6 +99,8 @@ class PositionRecorder(threading.Thread):
             print("No config file found for position recorder at " + config_file + ". Default config loaded.")
 
             self.to_stdout = False
+
+            self.imu_read_freq = 25
             self.front_axe = 'y'
 
             self.sim = False
@@ -103,6 +109,7 @@ class PositionRecorder(threading.Thread):
             self.path = 'records/'
             self.filename = 'data_pos.csv'
 
+            self.gps_read_freq = 4
             self.wait_gps = True
             self.nb_min_sat = 3
             self.autoset_time = True

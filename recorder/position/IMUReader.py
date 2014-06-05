@@ -57,23 +57,17 @@ class ImuDataset:
 
 class ImuReader(threading.Thread):
 
-    def __init__(self, magnetometer_calibration, from_record=False, record_file=""):
+    def __init__(self, magnetometer_calibration, freq):
         threading.Thread.__init__(self)
 
-        if from_record:
-            self.imu = IMURecord(record_file)
-        else:
-            self.bus = smbus.SMBus(i2c_raspberry_pi_bus_number())
-            self.imu = GY88(self.bus, gyro_address, compass_address, barometer_address, "GY88", magnetometer_calibration)
-
-        self.sim = from_record
-        self.sim_time = 0
+        self.bus = smbus.SMBus(i2c_raspberry_pi_bus_number())
+        self.imu = GY88(self.bus, gyro_address, compass_address, barometer_address, "GY88", magnetometer_calibration)
 
         self.running = False
         self.data_set = ImuDataset()
         self.new = False
 
-        self.period = 0.04
+        self.period = 1/freq
 
     def run(self):
         self.running = True
@@ -82,11 +76,7 @@ class ImuReader(threading.Thread):
             self.data_set.set(self.imu.read_all())
             self.new = True
 
-            if self.sim:
-                while self.data_set.time > self.sim_time and self.running:
-                    time.sleep(0.01)
-            else:
-                time.sleep(self.period)
+            time.sleep(self.period)
 
     def stop(self):
         self.running = False

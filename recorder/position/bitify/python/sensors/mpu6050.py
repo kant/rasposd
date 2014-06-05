@@ -140,6 +140,8 @@ class MPU6050(object):
         
         self.pitch = self.read_x_rotation(self.read_scaled_accel_x(),self.read_scaled_accel_y(),self.read_scaled_accel_z())
         self.roll =  self.read_y_rotation(self.read_scaled_accel_x(),self.read_scaled_accel_y(),self.read_scaled_accel_z())
+
+        #print(str(self.pitch) + " - " + str(self.roll))
         
     def distance(self, x, y):
         '''Returns the distance between two point in 2d space'''
