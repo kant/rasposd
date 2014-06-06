@@ -161,7 +161,7 @@ class PositionRecorder(threading.Thread):
 
         self.time = self.gps_data.time
         self.gps_time = self.gps_data.time
-        self.imu_time = self.imu_data.time
+        self.imu_last_time = self.imu_data.time
 
         time_offset = time.time()-self.gps_time
 
@@ -206,7 +206,6 @@ class PositionRecorder(threading.Thread):
                 self.gps_data = self.gps.get_data()
 
                 self.time = self.gps_data.time
-                self.gps_time = self.time
 
                 self.speed = self.gps_data.speed
                 self.climb = self.gps_data.climb
@@ -224,21 +223,20 @@ class PositionRecorder(threading.Thread):
             else:
                 if imu_new:
 
-                    imu_time_delta = self.imu_data.time - self.imu_time
-                    self.imu_time = self.imu_data.time
+                    imu_time_delta = self.imu_data.time - self.imu_last_time
+                    self.imu_last_time = self.imu_data.time
 
                     self.time += imu_time_delta
 
-                    if self.pitch%360 < 90:
+                    if self.pitch < 90:
                         norm_correct = self.pitch/90
                     else:
-                        if self.pitch%360 < 270:
+                        if self.pitch < 270:
                             norm_correct = 2-self.pitch/90
                         else:
                             norm_correct = self.pitch/90-4
 
-                    self.speed += ((self.accel_scaled_y-norm_correct)*imu_time_delta)*MPS_TO_KPH
-                    self.climb += self.accel_scaled_z*imu_time_delta*MPS_TO_KPH
+                    self.speed += (-(self.accel_scaled_y-norm_correct)*imu_time_delta)*MPS_TO_KPH
 
                     self.altitude = self.gps_data.altitude + (self.imu_data.pressure-self.pressure_ref)*8.7
 

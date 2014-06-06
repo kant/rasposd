@@ -162,7 +162,7 @@ class MPU6050(object):
         self.raw_temp_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.TEMP_START_BLOCK, 2)
 
 
-        self.gyro_raw_x = self.get_gyro_axis(self.obj_x)*self.x_correction(self.obj_x)*self.reverse
+        self.gyro_raw_x = self.get_gyro_axis(self.obj_x)*self.x_correction(self.obj_x)
         self.gyro_raw_y = self.get_gyro_axis(self.obj_y)*self.y_correction(self.obj_y)
         self.gyro_raw_z = self.get_gyro_axis(self.obj_z)*self.z_correction(self.obj_z)*self.reverse
         
