@@ -181,7 +181,12 @@ class MPU6050(object):
     
     def read_y_rotation(self, x, y, z):
         '''Returns the rotation around the Y axis in radians'''
-        return -math.atan2(x, self.distance(y, z))
+        if z < 0:
+            distance = -self.distance(y, z)
+        else:
+            distance = self.distance(y, z)
+
+        return -math.atan2(x, distance)
     
     def read_raw_accel_x(self):
         '''Return the RAW X accelerometer value'''
