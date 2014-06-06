@@ -3,18 +3,18 @@ import os
 import sys
 import uuid
 import ConfigParser
+import datetime
 
 DOSSIER_COURRANT = os.path.dirname(os.path.abspath(__file__))
 DOSSIER_PARENT = os.path.dirname(DOSSIER_COURRANT)
 sys.path.append(DOSSIER_PARENT)
 
-import position.GPSRecorder as GPSRecorder
-import position.IMURecorder as IMURecorder
+import position.PositionRecorder as PositionRecorder
 import camera.VideoRecorder as VideoRecorder
 
 
 # Define record folder and links
-subdir = "record_" + str(time.time()) + "_" + str(uuid.uuid1()) + "/"
+subdir = "record_" + datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S') + "/"
 directory = "records/" + subdir
 
 if not os.path.exists(directory):
@@ -41,15 +41,14 @@ else:
     print("Your compass is not calibrated. Please run the calibration script for better performances. "
           "You should run it each time the device environment (magnetic noise) changed.")
 
-imu = IMURecorder.ImuRecorder(directory, magnetometer_calibration)
-gps = GPSRecorder.GpsRecorder(directory)
+
+
+pos = PositionRecorder.PositionRecorder(subdir, magnetometer_calibration)
 video = VideoRecorder.VideoRecorder(directory + "video.h264")
 
 try:
-    print "Starting IMU recorder"
-    imu.start()
-    print "Starting GPS recorder"
-    gps.start()
+    print "Starting position recorder"
+    pos.start()
     print "Starting video recorder"
     video.start()
 
@@ -69,15 +68,12 @@ except:
 finally:
     print "Stopping recorders"
     video.stop()
-    gps.stop()
-    imu.stop()
+    pos.stop()
 
-    #wait for the tread to finish
+    # wait for the treads to finish
     print "- Wait for video recorder"
     video.join()
-    print "- Wait for gps recorder"
-    gps.join()
-    print "- Wait for imu recorder"
-    imu.join()
+    print "- Wait for position recorder"
+    pos.join()
 
     print "Finished"

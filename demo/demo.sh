@@ -6,7 +6,7 @@ sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock
 cd ../recorder
 
 echo "Starting data recorder"
-sudo python recorder_fusion.py &
+sudo python recorder.py &
 
 sleep 3
 
