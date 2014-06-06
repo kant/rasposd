@@ -65,10 +65,9 @@ Rectangle {
     property int refresh_interval: 20
 
     /* Use this to entirely replay a CSV file */
-    property bool sim: true
+    property bool sim: false
 
     property string source_file_path: "/home/pi/pilotage-fpv/recorder/records/last/data_pos.csv"
-
 
     // arial ne marche pas si je ne la charge pas avant.
     FontLoader {
