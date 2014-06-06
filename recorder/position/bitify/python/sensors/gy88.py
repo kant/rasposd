@@ -18,8 +18,8 @@ class GY88(object):
         self.name = name
         self.gyro_scale = gyro_scale
         self.accel_scale = accel_scale
+
         self.accel_scaled_x = 0
-        self.accel_scaled_y = 0
 
         self.accel_gyro = MPU6050(bus, gyro_address, name + "-gyroscope", obj_x, obj_y, obj_z, reverse, gyro_scale, accel_scale)
         self.compass = HMC5883L(bus, compass_address, name + "-compass", rate=5,
@@ -64,7 +64,6 @@ class GY88(object):
         self.gyro_scaled_z = self.accel_gyro.read_scaled_gyro_z()
 
         self.last_accel_scaled_x = self.accel_scaled_x
-        self.last_accel_scaled_y = self.accel_scaled_y
 
         self.accel_scaled_x = self.accel_gyro.read_scaled_accel_x()
         self.accel_scaled_y = self.accel_gyro.read_scaled_accel_y()
@@ -91,6 +90,9 @@ class GY88(object):
             new_pitch = self.pitch
 
         if abs(self.gyro_scaled_y) < 15:
+            if self.accel_scaled_z < 0 and (self.last_accel_scaled_x < 0 <= self.accel_scaled_x or self.last_accel_scaled_x >= 0 > self.accel_scaled_x):
+                self.roll = -self.roll
+
             new_roll = GY88.K * (self.roll + self.gyro_scaled_y * self.time_diff) + (GY88.K1 * current_y)
         else:
             new_roll = self.roll

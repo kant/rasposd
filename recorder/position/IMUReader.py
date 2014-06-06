@@ -2,11 +2,8 @@ import smbus
 import threading
 import time
 
-from position.IMURecord import IMURecord
-
 from position.bitify.python.sensors.gy88 import GY88
 from position.bitify.python.utils.i2cutils import i2c_raspberry_pi_bus_number
-from xml.etree.ElementPath import _SelectorContext
 
 
 gyro_address = 0x68
@@ -90,6 +87,3 @@ class ImuReader(threading.Thread):
 
     def get_data(self):
         return self.data_set
-
-    def set_sim_time(self, time):
-        self.sim_time = time
