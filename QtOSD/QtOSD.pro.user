@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 3.0.1, 2014-06-03T14:23:53. -->
+<!-- Written by QtCreator 3.0.1, 2014-06-06T17:52:27. -->
 <qtcreator>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
@@ -200,23 +200,23 @@
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">RemoteLinux.DirectUploadStep</value>
       <valuelist type="QVariantList" key="Qt4ProjectManager.MaemoRunConfiguration.LastDeployedFiles">
        <value type="QString">/home/oswin/projects/pilotage-fpv/build-QtOSD-RPi-Debug/QtOSD</value>
-       <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/main.qml</value>
-       <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/Ruler.qml</value>
-       <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/Ruler.qml</value>
-       <value type="QString">/home/oswin/projects/pilotage-fpv/build-QtOSD-RPi-Debug/QtOSD</value>
        <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/Ruler.qml</value>
        <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/main.qml</value>
        <value type="QString">/home/oswin/projects/pilotage-fpv/build-QtOSD-RPi-Debug/QtOSD</value>
        <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/main.qml</value>
+       <value type="QString">/home/oswin/projects/pilotage-fpv/build-QtOSD-RPi-Debug/QtOSD</value>
+       <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/main.qml</value>
+       <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/Ruler.qml</value>
+       <value type="QString">/home/oswin/projects/pilotage-fpv/QtOSD/qml/QtOSD/Ruler.qml</value>
       </valuelist>
       <valuelist type="QVariantList" key="Qt4ProjectManager.MaemoRunConfiguration.LastDeployedHosts">
        <value type="QString">10.0.0.2</value>
        <value type="QString">pilot-rpi.local</value>
        <value type="QString">10.0.0.2</value>
        <value type="QString">pilot-rpi.local</value>
+       <value type="QString">pilot-rpi</value>
+       <value type="QString">pilot-rpi</value>
        <value type="QString">pilot-rpi.local</value>
-       <value type="QString">pilot-rpi</value>
-       <value type="QString">pilot-rpi</value>
        <value type="QString">pilot-rpi</value>
        <value type="QString">10.0.0.2</value>
       </valuelist>
@@ -224,11 +224,11 @@
        <value type="QString">/opt/QtOSD/bin</value>
        <value type="QString">/opt/QtOSD/qml/QtOSD</value>
        <value type="QString">/opt/QtOSD/qml/QtOSD</value>
+       <value type="QString">/opt/QtOSD/bin</value>
        <value type="QString">/opt/QtOSD/qml/QtOSD</value>
        <value type="QString">/opt/QtOSD/bin</value>
        <value type="QString">/opt/QtOSD/qml/QtOSD</value>
        <value type="QString">/opt/QtOSD/qml/QtOSD</value>
-       <value type="QString">/opt/QtOSD/bin</value>
        <value type="QString">/opt/QtOSD/qml/QtOSD</value>
       </valuelist>
       <valuelist type="QVariantList" key="Qt4ProjectManager.MaemoRunConfiguration.LastDeployedSysroots">
@@ -244,13 +244,13 @@
       </valuelist>
       <valuelist type="QVariantList" key="Qt4ProjectManager.MaemoRunConfiguration.LastDeployedTimes">
        <value type="QDateTime">2014-05-20T00:47:28</value>
-       <value type="QDateTime">2014-04-25T14:36:15</value>
-       <value type="QDateTime">2014-05-20T00:47:27</value>
        <value type="QDateTime">2014-04-30T12:24:03</value>
+       <value type="QDateTime">2014-05-20T00:47:27</value>
        <value type="QDateTime">2014-04-25T18:05:44</value>
        <value type="QDateTime">2014-06-03T10:42:12</value>
-       <value type="QDateTime">2014-06-03T10:42:12</value>
        <value type="QDateTime">2014-06-03T10:42:18</value>
+       <value type="QDateTime">2014-04-25T14:36:15</value>
+       <value type="QDateTime">2014-06-03T10:42:12</value>
        <value type="QDateTime">2014-05-20T00:47:27</value>
       </valuelist>
       <value type="bool" key="RemoteLinux.GenericDirectUploadStep.IgnoreMissingFiles">false</value>
