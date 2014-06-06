@@ -5,8 +5,10 @@ sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock
 
 cd ../recorder
 
-echo "Starting data recorder. Data is saved in QtOSD/bin"
+echo "Starting data recorder"
 sudo python recorder_fusion.py &
+
+sleep 3
 
 echo "Starting data visualisation overlay"
 ../demo/QtOSD/bin/QtOSD -platform eglfs &

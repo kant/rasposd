@@ -53,7 +53,9 @@ class MPU6050(object):
     K = 0.98
     K1 = 1 - K
 
-    def __init__(self, bus, address, name, fs_scale=FS_250, afs_scale=AFS_2g):
+    def __init__(self, bus, address, name,
+                 obj_x='x', obj_y='y', obj_z='z', reverse=False,
+                 fs_scale=FS_250, afs_scale=AFS_2g):
         '''
         Constructor
         '''
@@ -63,6 +65,15 @@ class MPU6050(object):
         self.name = name
         self.fs_scale = fs_scale
         self.afs_scale = afs_scale
+
+        self.obj_x = obj_x
+        self.obj_y = obj_y
+        self.obj_z = obj_z
+
+        if reverse:
+            self.reverse = -1
+        else:
+            self.reverse = 1
         
         self.raw_gyro_data = [0, 0, 0, 0, 0, 0]
         self.raw_accel_data = [0, 0, 0, 0, 0, 0]
@@ -101,6 +112,7 @@ class MPU6050(object):
                 print("Hardware init failed twice, your power supply may be too weak. Please run again.")
                 return
 
+
     def hw_init(self):
         # We need to wake up the module as it start in sleep mode
         I2CUtils.i2c_write_byte(self.bus, self.address, MPU6050.PWR_MGMT_1, 0)
@@ -109,6 +121,21 @@ class MPU6050(object):
         # Set the accelerometer resolution
         I2CUtils.i2c_write_byte(self.bus, self.address, MPU6050.AFS_SEL, self.afs_scale << 3)
 
+
+    def get_gyro_axis(self, axis):
+        return {
+            'x': I2CUtils.twos_compliment(self.raw_gyro_data[MPU6050.GYRO_XOUT_H], self.raw_gyro_data[MPU6050.GYRO_XOUT_L]),
+            'y': I2CUtils.twos_compliment(self.raw_gyro_data[MPU6050.GYRO_YOUT_H], self.raw_gyro_data[MPU6050.GYRO_YOUT_L]),
+            'z': I2CUtils.twos_compliment(self.raw_gyro_data[MPU6050.GYRO_ZOUT_H], self.raw_gyro_data[MPU6050.GYRO_ZOUT_L])
+            }.get(axis, 0)
+
+    def get_accel_axis(self, axis):
+        return {
+            'x': I2CUtils.twos_compliment(self.raw_accel_data[MPU6050.ACCEL_XOUT_H], self.raw_accel_data[MPU6050.ACCEL_XOUT_L]),
+            'y': I2CUtils.twos_compliment(self.raw_accel_data[MPU6050.ACCEL_YOUT_H], self.raw_accel_data[MPU6050.ACCEL_YOUT_L]),
+            'z': I2CUtils.twos_compliment(self.raw_accel_data[MPU6050.ACCEL_ZOUT_H], self.raw_accel_data[MPU6050.ACCEL_ZOUT_L])
+            }.get(axis, 0)
+
     def read_raw_data(self):
         '''
         Read the raw data from the sensor, scale it appropriately and store for later use
@@ -116,15 +143,16 @@ class MPU6050(object):
         self.raw_gyro_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.GYRO_START_BLOCK, 6)
         self.raw_accel_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.ACCEL_START_BLOCK, 6)
         self.raw_temp_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.TEMP_START_BLOCK, 2)
+
+
+        self.gyro_raw_x = self.get_gyro_axis(self.obj_x)*self.reverse
+        self.gyro_raw_y = self.get_gyro_axis(self.obj_y)
+        self.gyro_raw_z = self.get_gyro_axis(self.obj_z)*self.reverse
         
-        self.gyro_raw_x = I2CUtils.twos_compliment(self.raw_gyro_data[MPU6050.GYRO_XOUT_H], self.raw_gyro_data[MPU6050.GYRO_XOUT_L])
-        self.gyro_raw_y = I2CUtils.twos_compliment(self.raw_gyro_data[MPU6050.GYRO_YOUT_H], self.raw_gyro_data[MPU6050.GYRO_YOUT_L])
-        self.gyro_raw_z = I2CUtils.twos_compliment(self.raw_gyro_data[MPU6050.GYRO_ZOUT_H], self.raw_gyro_data[MPU6050.GYRO_ZOUT_L])
-        
-        self.accel_raw_x = I2CUtils.twos_compliment(self.raw_accel_data[MPU6050.ACCEL_XOUT_H], self.raw_accel_data[MPU6050.ACCEL_XOUT_L])
-        self.accel_raw_y = I2CUtils.twos_compliment(self.raw_accel_data[MPU6050.ACCEL_YOUT_H], self.raw_accel_data[MPU6050.ACCEL_YOUT_L])
-        self.accel_raw_z = I2CUtils.twos_compliment(self.raw_accel_data[MPU6050.ACCEL_ZOUT_H], self.raw_accel_data[MPU6050.ACCEL_ZOUT_L])
-        
+        self.accel_raw_x = self.get_accel_axis(self.obj_x)*self.reverse
+        self.accel_raw_y = self.get_accel_axis(self.obj_y)
+        self.accel_raw_z = self.get_accel_axis(self.obj_z)*self.reverse
+
         self.raw_temp = I2CUtils.twos_compliment(self.raw_temp_data[MPU6050.TEMP_OUT_H], self.raw_temp_data[MPU6050.TEMP_OUT_L])
 
         # We convert these to radians for consistency and so we can easily combine later in the filter

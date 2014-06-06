@@ -36,7 +36,10 @@ class HMC5883L(object):
                     7 : [ 8.10, 230, 4.35 ]
                  }
 
-    def __init__(self, bus, address, name, samples=3, rate=4, gain=1, sampling_mode=0, x_offset=0, y_offset=0, z_offset=0):
+    def __init__(self, bus, address, name, samples=3, rate=4, gain=1, sampling_mode=0,
+                 x_offset=0, y_offset=0, z_offset=0,
+                 obj_x='x', obj_y='y', obj_z='z',
+                 reverse=False):
         self.bus = bus
         self.address = address
         self.name = name
@@ -47,6 +50,15 @@ class HMC5883L(object):
         self.x_offset = x_offset
         self.y_offset = y_offset
         self.z_offset = z_offset
+
+        self.obj_x = obj_x
+        self.obj_y = obj_y
+        self.obj_z = obj_z
+
+        if reverse:
+            self.reverse = -1
+        else:
+            self.reverse = 1
 
         try:
             self.hw_init(samples, rate, gain)
@@ -75,17 +87,23 @@ class HMC5883L(object):
 
         # Set the operation mode
         I2CUtils.i2c_write_byte(self.bus, self.address, HMC5883L.MODE_REG, self.sampling_mode)
-    
+
+    def get_axis(self, data, axis):
+        return {
+            'x': I2CUtils.twos_compliment(data[HMC5883L.DATA_XOUT_H], data[HMC5883L.DATA_XOUT_L]) - self.x_offset,
+            'y': I2CUtils.twos_compliment(data[HMC5883L.DATA_YOUT_H], data[HMC5883L.DATA_YOUT_L]) - self.y_offset,
+            'z': I2CUtils.twos_compliment(data[HMC5883L.DATA_ZOUT_H], data[HMC5883L.DATA_ZOUT_L]) - self.z_offset
+            }.get(axis, 0)
+
     def read_raw_data(self):
         '''
         Read the raw data from the sensor, scale it appropriately and store for later use
         '''
-
         try:
             self.raw_data = I2CUtils.i2c_read_block(self.bus, self.address, HMC5883L.DATA_START_BLOCK, 6)
-            self.raw_x = I2CUtils.twos_compliment(self.raw_data[HMC5883L.DATA_XOUT_H], self.raw_data[HMC5883L.DATA_XOUT_L]) - self.x_offset
-            self.raw_y = I2CUtils.twos_compliment(self.raw_data[HMC5883L.DATA_YOUT_H], self.raw_data[HMC5883L.DATA_YOUT_L]) - self.y_offset
-            self.raw_z = I2CUtils.twos_compliment(self.raw_data[HMC5883L.DATA_ZOUT_H], self.raw_data[HMC5883L.DATA_ZOUT_L]) - self.z_offset
+            self.raw_x = self.get_axis(self.raw_data, self.obj_x)*self.reverse
+            self.raw_y = self.get_axis(self.raw_data, self.obj_y)
+            self.raw_z = self.get_axis(self.raw_data, self.obj_z)*self.reverse
 
             self.scaled_x = self.raw_x * HMC5883L.GAIN_SCALE[self.gain][2]
             self.scaled_y = self.raw_y * HMC5883L.GAIN_SCALE[self.gain][2]
@@ -159,9 +177,9 @@ class HMC5883L(object):
         for i in range(0,200):
 
             raw_data = I2CUtils.i2c_read_block(self.bus, self.address, HMC5883L.DATA_START_BLOCK, 6)
-            x_out = I2CUtils.twos_compliment(raw_data[HMC5883L.DATA_XOUT_H], raw_data[HMC5883L.DATA_XOUT_L])
-            y_out = I2CUtils.twos_compliment(raw_data[HMC5883L.DATA_YOUT_H], raw_data[HMC5883L.DATA_YOUT_L])
-            z_out = I2CUtils.twos_compliment(raw_data[HMC5883L.DATA_ZOUT_H], raw_data[HMC5883L.DATA_ZOUT_L])
+            x_out = self.get_axis(raw_data, self.obj_x)
+            y_out = self.get_axis(raw_data, self.obj_y)
+            z_out = self.get_axis(raw_data, self.obj_z)
 
             if x_out < minx:
                 minx=x_out

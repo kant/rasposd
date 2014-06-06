@@ -19,7 +19,8 @@ class PositionRecorder(threading.Thread):
 
         self.set_config('config/position.cfg')
 
-        self.imu = IMUReader.ImuReader(magnetometer_calibration, self.imu_read_freq)
+        self.imu = IMUReader.ImuReader(magnetometer_calibration, self.imu_read_freq,
+                                       self.obj_x, self.obj_y, self.obj_z, self.reverse)
         self.gps = GPSReader.GpsReader(self.gps_read_freq)
 
         self.imu.start()
@@ -80,7 +81,10 @@ class PositionRecorder(threading.Thread):
 
 
             self.imu_read_freq = config.getint('imu', 'read_frequency')
-            self.front_axe = config.get('imu', 'front_axe')
+            self.obj_x = config.get('imu', 'obj_x')
+            self.obj_y = config.get('imu', 'obj_y')
+            self.obj_z = config.get('imu', 'obj_z')
+            self.reverse = config.getboolean('imu', 'reverse')
 
             self.sim = config.getboolean('simulation', 'sim')
 
@@ -101,7 +105,10 @@ class PositionRecorder(threading.Thread):
             self.to_stdout = False
 
             self.imu_read_freq = 25
-            self.front_axe = 'y'
+            self.obj_x = 'x'
+            self.obj_y = 'y'
+            self.obj_z = 'z'
+            self.reverse = False
 
             self.sim = False
 
@@ -190,15 +197,8 @@ class PositionRecorder(threading.Thread):
                 self.gps_data = self.gps.get_data()
 
             if imu_new:
-                if self.front_axe == 'y':
-                    self.roll = self.imu_data.roll*RAD_TO_DEG
-                    self.pitch = self.imu_data.pitch*RAD_TO_DEG
-                else:
-                    if self.front_axe == 'x':
-                        self.roll = self.imu_data.pitch*RAD_TO_DEG
-                        self.pitch = self.imu_data.roll*RAD_TO_DEG
-                    else:
-                        print("Error, " + self.front_axe + " is not a valid front axe, put x or y")
+                self.roll = self.imu_data.roll*RAD_TO_DEG
+                self.pitch = self.imu_data.pitch*RAD_TO_DEG
 
                 self.yaw = self.imu_data.yaw*RAD_TO_DEG+self.north_offset
 
