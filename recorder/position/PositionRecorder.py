@@ -86,8 +86,6 @@ class PositionRecorder(threading.Thread):
             self.obj_z = config.get('imu', 'obj_z')
             self.reverse = config.getboolean('imu', 'reverse')
 
-            self.sim = config.getboolean('simulation', 'sim')
-
             self.print_header = config.getboolean('file', 'print_header')
             self.path = config.get('file', 'path')
             self.filename = config.get('file', 'filename')
@@ -110,8 +108,6 @@ class PositionRecorder(threading.Thread):
             self.obj_z = 'z'
             self.reverse = False
 
-            self.sim = False
-
             self.print_header = True
             self.path = 'records/'
             self.filename = 'data_pos.csv'
@@ -126,8 +122,6 @@ class PositionRecorder(threading.Thread):
     def run(self):
         self.running = True
 
-        speeds = []
-        times = []
 
         if self.wait_gps:
             # Wait for GFS fix
@@ -172,12 +166,6 @@ class PositionRecorder(threading.Thread):
         time_offset = time.time()-self.gps_time
 
         while self.running:
-
-            if self.sim:
-                sim_time = time.time() - time_offset
-
-                self.imu.set_sim_time(sim_time)
-                self.gps.set_sim_time(sim_time)
 
             # Read data from sensors
             imu_new = self.imu.is_new_data()

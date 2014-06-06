@@ -3,8 +3,6 @@ import time
 import threading
 import dateutil.parser as dateparser
 
-from position.GPSRecord import GPSRecord
-
 class GpsDataset:
 
     def __init__(self):
@@ -101,6 +99,3 @@ class GpsReader(threading.Thread):
 
     def get_data(self):
         return self.data_set
-
-    def set_sim_time(self, time):
-        self.sim_time = time
