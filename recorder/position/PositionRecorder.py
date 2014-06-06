@@ -19,8 +19,9 @@ class PositionRecorder(threading.Thread):
 
         self.set_config('config/position.cfg')
 
-        self.imu = IMUReader.ImuReader(magnetometer_calibration, self.sim, self.path + 'feed/data_imu.csv')
-        self.gps = GPSReader.GpsReader(self.sim, self.path + 'feed/data_gps.csv')
+        self.imu = IMUReader.ImuReader(magnetometer_calibration, self.imu_read_freq,
+                                       self.obj_x, self.obj_y, self.obj_z, self.reverse)
+        self.gps = GPSReader.GpsReader(self.gps_read_freq)
 
         self.imu.start()
         self.gps.start()
@@ -50,6 +51,7 @@ class PositionRecorder(threading.Thread):
         self.longitude = 0
 
         self.altitude = 0
+        self.pressure = 0
         self.pressure_ref = 0
 
         self.gyro_scaled_x = 0
@@ -77,20 +79,36 @@ class PositionRecorder(threading.Thread):
 
             self.to_stdout = config.getboolean('general', 'to_stdout')
 
+
+            self.imu_read_freq = config.getint('imu', 'read_frequency')
+            self.obj_x = config.get('imu', 'obj_x')
+            self.obj_y = config.get('imu', 'obj_y')
+            self.obj_z = config.get('imu', 'obj_z')
+            self.reverse = config.getboolean('imu', 'reverse')
+
             self.sim = config.getboolean('simulation', 'sim')
 
             self.print_header = config.getboolean('file', 'print_header')
             self.path = config.get('file', 'path')
             self.filename = config.get('file', 'filename')
 
+            self.gps_read_freq = config.getint('gps', 'read_frequency')
             self.wait_gps = config.getboolean('gps', 'wait_gps')
             self.nb_min_sat = config.getint('gps', 'nb_min_sat')
             self.autoset_time = config.getboolean('gps', 'autoset_time')
+
+            self.north_offset = config.getint('compass', 'north_offset')
 
         else:
             print("No config file found for position recorder at " + config_file + ". Default config loaded.")
 
             self.to_stdout = False
+
+            self.imu_read_freq = 25
+            self.obj_x = 'x'
+            self.obj_y = 'y'
+            self.obj_z = 'z'
+            self.reverse = False
 
             self.sim = False
 
@@ -98,9 +116,12 @@ class PositionRecorder(threading.Thread):
             self.path = 'records/'
             self.filename = 'data_pos.csv'
 
+            self.gps_read_freq = 4
             self.wait_gps = True
             self.nb_min_sat = 3
             self.autoset_time = True
+
+            self.north_offset = 0
 
     def run(self):
         self.running = True
@@ -137,7 +158,8 @@ class PositionRecorder(threading.Thread):
                 "alt", "temp",
                 "track", "mode", "sats",
                 "gyro_scaled_x", "gyro_scaled_y", "gyro_scaled_z",
-                "accel_scaled_x", "accel_scaled_y", "accel_scaled_z"
+                "accel_scaled_x", "accel_scaled_y", "accel_scaled_z",
+                "pressure"
             ])
 
         self.imu_data = self.imu.get_data()
@@ -161,6 +183,7 @@ class PositionRecorder(threading.Thread):
             imu_new = self.imu.is_new_data()
             gps_new = self.gps.is_new_data()
 
+            # If we got no new data, sleep a bit so we don't overload CPU
             if not imu_new and not gps_new:
                 sleep(0.01)
                 continue
@@ -176,7 +199,8 @@ class PositionRecorder(threading.Thread):
             if imu_new:
                 self.roll = self.imu_data.roll*RAD_TO_DEG
                 self.pitch = self.imu_data.pitch*RAD_TO_DEG
-                self.yaw = self.imu_data.yaw*RAD_TO_DEG
+
+                self.yaw = self.imu_data.yaw*RAD_TO_DEG+self.north_offset
 
                 self.gyro_scaled_x = self.imu_data.gyro_scaled_x
                 self.gyro_scaled_y = self.imu_data.gyro_scaled_y
@@ -187,6 +211,7 @@ class PositionRecorder(threading.Thread):
                 self.accel_scaled_z = self.imu_data.accel_scaled_z
 
                 self.temperature = self.imu_data.temperature
+                self.pressure = self.imu_data.pressure
 
             # Compute final data
             if gps_new:
@@ -195,8 +220,8 @@ class PositionRecorder(threading.Thread):
                 self.time = self.gps_data.time
                 self.gps_time = self.time
 
-                self.speed = self.gps_data.speed*MPS_TO_KPH
-                self.climb = self.gps_data.climb*MPS_TO_KPH
+                self.speed = self.gps_data.speed
+                self.climb = self.gps_data.climb
 
                 self.latitude = self.gps_data.latitude
                 self.longitude = self.gps_data.longitude
@@ -216,10 +241,18 @@ class PositionRecorder(threading.Thread):
 
                     self.time += imu_time_delta
 
-                    self.speed += self.accel_scaled_x*imu_time_delta*MPS_TO_KPH
+                    if self.pitch%360 < 90:
+                        norm_correct = self.pitch/90
+                    else:
+                        if self.pitch%360 < 270:
+                            norm_correct = 2-self.pitch/90
+                        else:
+                            norm_correct = self.pitch/90-4
+
+                    self.speed += ((self.accel_scaled_y-norm_correct)*imu_time_delta)*MPS_TO_KPH
                     self.climb += self.accel_scaled_z*imu_time_delta*MPS_TO_KPH
 
-                    self.altitude = self.gps_data.altitude + (self.imu_data.pressure-self.pressure_ref)*8
+                    self.altitude = self.gps_data.altitude + (self.imu_data.pressure-self.pressure_ref)*8.7
 
             # Write data line to CSV file
             self.writer.writerow([
@@ -230,7 +263,8 @@ class PositionRecorder(threading.Thread):
                 self.altitude, self.temperature,
                 self.track, self.mode, self.nb_sats,
                 self.gyro_scaled_x, self.gyro_scaled_y, self.gyro_scaled_z,
-                self.accel_scaled_x, self.accel_scaled_y, self.accel_scaled_z
+                self.accel_scaled_x, self.accel_scaled_y, self.accel_scaled_z,
+                self.pressure
             ])
             self.output.flush() # In live show using this is essential to avoid 1 sec buffering
 

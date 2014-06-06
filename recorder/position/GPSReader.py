@@ -1,7 +1,7 @@
 from gps import *
 import time
 import threading
-import datetime
+import dateutil.parser as dateparser
 
 from position.GPSRecord import GPSRecord
 
@@ -29,7 +29,7 @@ class GpsDataset:
         try:
             fix.time = float(fix.time)
         except ValueError:
-            fix.time = time.mktime(datetime.datetime.strptime(fix.time, "%Y-%m-%dT%H:%M:%S.000Z").timetuple())
+            fix.time = calendar.timegm(dateparser.parse(fix.time).timetuple())
 
         self.time = fix.time
         self.ept = fix.ept
@@ -64,16 +64,10 @@ class GpsReader(threading.Thread):
     '''
     http://www.stuffaboutcode.com/2013/09/raspberry-pi-gps-setup-and-python.html
     '''
-    def __init__(self, from_record=False, record_file=''):
+    def __init__(self, freq):
         threading.Thread.__init__(self)
 
-        if from_record:
-            self.gpsd = GPSRecord(record_file)
-        else:
-            self.gpsd = gps(mode=WATCH_ENABLE)  # starting the stream of info
-
-        self.sim = from_record
-        self.sim_time = 0
+        self.gpsd = gps(mode=WATCH_ENABLE)  # starting the stream of info
 
         self.running = False
 
@@ -81,7 +75,7 @@ class GpsReader(threading.Thread):
         self.new_data_set = GpsDataset()
         self.new = False
 
-        self.period = 0.25
+        self.period = 1/freq
 
     def run(self):
         self.running = True
@@ -95,11 +89,7 @@ class GpsReader(threading.Thread):
                 self.data_set = self.new_data_set
                 self.new = True
 
-            if self.sim:
-                while self.data_set.time > self.sim_time and self.running:
-                    time.sleep(0.1)
-            else:
-                time.sleep(self.period)
+            time.sleep(self.period)
 
     def stop(self):
         self.running = False

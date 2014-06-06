@@ -21,10 +21,23 @@ class BMP085(object):
         self.address = address
         self.name = name
         
-        self.calibration = I2CUtils.i2c_read_block(bus, address, BMP085.CALIB_BLOCK_ADDRESS, BMP085.CALIB_BLOCK_SIZE)
+        try:
+            self.hw_init(bus, address)
+        except IOError:
+            try:
+                print("Barometer hardware init failed, trying again")
+                self.hw_init()
+                print("Hardware init OK")
+            except IOError:
+                print("Hardware init failed twice, your power supply may be too weak. Please run again.")
+                return
+
         self.oss = oss
         self.temp_wait_period = 0.004
         self.pressure_wait_period = 0.0255  # Conversion time
+
+    def hw_init(self, bus, address):
+        self.calibration = I2CUtils.i2c_read_block(bus, address, BMP085.CALIB_BLOCK_ADDRESS, BMP085.CALIB_BLOCK_SIZE)
 
     def twos_compliment(self, val):
         if val >= 0x8000:
@@ -59,45 +72,55 @@ class BMP085(object):
         
         # This code is a direct translation from the datasheet
         # and should be optimised for real world use
-        
-        # Read raw temperature
-        I2CUtils.i2c_write_byte(self.bus, self.address, 0xF4, 0x2E)  # Tell the sensor to take a temperature reading
-        time.sleep(self.temp_wait_period)  # Wait for the conversion to take place
-        temp_raw = I2CUtils.i2c_read_word_signed(self.bus, self.address, 0xF6)
-        
-        I2CUtils.i2c_write_byte(self.bus, self.address, 0xF4, 0x34 + (self.oss << 6))  # Tell the sensor to take a pressure reading
-        time.sleep(self.pressure_wait_period)  # Wait for the conversion to take place
-        pressure_raw = ((I2CUtils.i2c_read_byte(self.bus, self.address, 0xF6) << 16) \
-                     + (I2CUtils.i2c_read_byte(self.bus, self.address, 0xF7) << 8) \
-                     + (I2CUtils.i2c_read_byte(self.bus, self.address, 0xF8))) >> (8 - self.oss)
-        
-        
-        # Calculate temperature
-        x1 = ((temp_raw - ac6) * ac5) / 32768
-        x2 = (mc * 2048) / (x1 + md)
-        b5 = x1 + x2
-        t = (b5 + 8) / 16
-        
-        # Now calculate the pressure
-        b6 = b5 - 4000 
-        x1 = (b2 * (b6 * b6 >> 12)) >> 11
-        x2 = ac2 * b6 >> 11
-        x3 = x1 + x2
-        b3 = (((ac1 * 4 + x3) << oss) + 2) >> 2 
-        
-        x1 = (ac3 * b6) >> 13 
-        x2 = (b1 * (b6 * b6 >> 12)) >> 16 
-        x3 = ((x1 + x2) + 2) >> 2 
-        b4 = ac4 * (x3 + 32768) >> 15 
-        b7 = (pressure_raw - b3) * (50000 >> oss)
-        if (b7 < 0x80000000):
-            p = (b7 * 2) / b4
-        else:
-            p = (b7 / b4) * 2
-        x1 = (p >> 8) * (p >> 8)
-        x1 = (x1 * 3038) >> 16
-        x2 = (-7357 * p) >> 16
-        p = p + ((x1 + x2 + 3791) >> 4)
+
+        try:
+            # Read raw temperature
+            I2CUtils.i2c_write_byte(self.bus, self.address, 0xF4, 0x2E)  # Tell the sensor to take a temperature reading
+            time.sleep(self.temp_wait_period)  # Wait for the conversion to take place
+            temp_raw = I2CUtils.i2c_read_word_signed(self.bus, self.address, 0xF6)
+
+            # Calculate temperature
+            x1 = ((temp_raw - ac6) * ac5) / 32768
+            x2 = (mc * 2048) / (x1 + md)
+            b5 = x1 + x2
+            t = (b5 + 8) / 16
+
+
+            I2CUtils.i2c_write_byte(self.bus, self.address, 0xF4, 0x34 + (self.oss << 6))  # Tell the sensor to take a pressure reading
+            time.sleep(self.pressure_wait_period)  # Wait for the conversion to take place
+            pressure_raw = ((I2CUtils.i2c_read_byte(self.bus, self.address, 0xF6) << 16) \
+                         + (I2CUtils.i2c_read_byte(self.bus, self.address, 0xF7) << 8) \
+                         + (I2CUtils.i2c_read_byte(self.bus, self.address, 0xF8))) >> (8 - self.oss)
+
+
+            # Now calculate the pressure
+            b6 = b5 - 4000
+            x1 = (b2 * (b6 * b6 >> 12)) >> 11
+            x2 = ac2 * b6 >> 11
+            x3 = x1 + x2
+            b3 = (((ac1 * 4 + x3) << oss) + 2) >> 2
+
+            x1 = (ac3 * b6) >> 13
+            x2 = (b1 * (b6 * b6 >> 12)) >> 16
+            x3 = ((x1 + x2) + 2) >> 2
+            b4 = ac4 * (x3 + 32768) >> 15
+            b7 = (pressure_raw - b3) * (50000 >> oss)
+            if (b7 < 0x80000000):
+                p = (b7 * 2) / b4
+            else:
+                p = (b7 / b4) * 2
+            x1 = (p >> 8) * (p >> 8)
+            x1 = (x1 * 3038) >> 16
+            x2 = (-7357 * p) >> 16
+            p = p + ((x1 + x2 + 3791) >> 4)
+
+        except IOError:
+
+            print("I2C error, temperature and pressure read abort")
+            t = 0;
+            p = 0;
+
+
         return(t / 10., p / 100.)
 
     def read_pressure(self):

@@ -15,6 +15,7 @@ class VideoRecorder(threading.Thread):
 
         self.camera.resolution = (self.resolution_x, self.resolution_y)
         self.camera.rotation = self.rotation
+        self.camera.preview_layer = 0
         self.output = filename
         self.running = False
         
@@ -69,3 +70,5 @@ class VideoRecorder(threading.Thread):
         print("Camera config :")
         print(" - resolution : " + str(self.resolution_x) + "x" + str(self.resolution_y))
         print(" - rotation : " + str(self.rotation) + " degrees")
+        print(" - preview : " + str(self.enable_preview))
+        print(" - record : " + str(self.enable_record))
