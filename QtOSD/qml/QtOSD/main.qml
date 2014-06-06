@@ -67,16 +67,14 @@ Rectangle {
     /* Use this to entirely replay a CSV file */
     property bool sim: true
 
-    //    property string source_file_path: "/home/pi/pilotage-fpv/recorder/records/last/data_pos.csv"
-    //    property string source_file_path: "/home/oswin/projects/pilotage-fpv/recorder/records/last/data_pos.csv"
-    property string source_file_path: "/home/oswin/projects/pilotage-fpv/recorder/records/chuv-plaisante.csv"
+    property string source_file_path: "/home/pi/pilotage-fpv/recorder/records/last/data_pos.csv"
 
 
     // arial ne marche pas si je ne la charge pas avant.
-//    FontLoader {
-//        id: myfont
-//        source: "/home/pi/pilotage-fpv/Arial.ttf"
-//    }
+    FontLoader {
+        id: myfont
+        source: "/home/pi/pilotage-fpv/Arial.ttf"
+    }
 
     Text {
         id: lblTemperature
