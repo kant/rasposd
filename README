@@ -1,1 +1,6 @@
  Raspberry Pi embarquée pour pilotage à distance
+
+ QtOSD : OSD en Qt et QML
+ demo : binaires de démonstration avc QML et scripts
+ libosd : anciennes version de l'OSD et essais (non nettoyé)
+ recorder : enregistreur de données IMU+GPS et vidéo
