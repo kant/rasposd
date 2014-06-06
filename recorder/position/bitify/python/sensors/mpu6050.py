@@ -136,6 +136,23 @@ class MPU6050(object):
             'z': I2CUtils.twos_compliment(self.raw_accel_data[MPU6050.ACCEL_ZOUT_H], self.raw_accel_data[MPU6050.ACCEL_ZOUT_L])
             }.get(axis, 0)
 
+    def x_correction(selfself, axis):
+        return {
+            'x': 1,
+            'y': -1,
+        }.get(axis, 1)
+
+    def y_correction(selfself, axis):
+        return {
+            'x': -1,
+            'y': 1,
+        }.get(axis, 1)
+
+    def z_correction(selfself, axis):
+        return {
+            'z': 1
+        }.get(axis, 1)
+
     def read_raw_data(self):
         '''
         Read the raw data from the sensor, scale it appropriately and store for later use
@@ -145,9 +162,9 @@ class MPU6050(object):
         self.raw_temp_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.TEMP_START_BLOCK, 2)
 
 
-        self.gyro_raw_x = self.get_gyro_axis(self.obj_x)*self.reverse
-        self.gyro_raw_y = self.get_gyro_axis(self.obj_y)
-        self.gyro_raw_z = self.get_gyro_axis(self.obj_z)*self.reverse
+        self.gyro_raw_x = self.get_gyro_axis(self.obj_x)*self.x_correction(self.obj_x)*self.reverse
+        self.gyro_raw_y = self.get_gyro_axis(self.obj_y)*self.y_correction(self.obj_y)
+        self.gyro_raw_z = self.get_gyro_axis(self.obj_z)*self.z_correction(self.obj_z)*self.reverse
         
         self.accel_raw_x = self.get_accel_axis(self.obj_x)*self.reverse
         self.accel_raw_y = self.get_accel_axis(self.obj_y)
