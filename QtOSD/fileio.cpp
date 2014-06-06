@@ -52,8 +52,7 @@ void FileIO::readLastLine()
     }
 
     /* Get the line where the pointer is, the second to last line 
-     * We don't want the last, it could be uncomplete
-     */
+     * We don't want the last, it could be uncomplete */
     QString r = file->readAll();
 
     /* Split the columns */
@@ -72,11 +71,13 @@ void FileIO::readNextLine()
     }
 
     /* If the next line is in the "past or present" of the simulation, use it */
-    if( nextLine.value(TIME).toDouble() <= currentSimTime )
+    if( nextLine.value(TIME).toDouble() <= currentSimTime ) {
         reuse = false;
         currentLine = nextLine;
-    else
+    }
+    else {
         reuse = true;
+    }
 }
 
 
