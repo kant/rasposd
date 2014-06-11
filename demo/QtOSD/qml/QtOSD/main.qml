@@ -312,7 +312,7 @@ Rectangle {
 
         /* Position */
         width: 20
-        height:2
+        height:4
         anchors.centerIn: parent
 
         /* Aspect */
@@ -420,7 +420,7 @@ Rectangle {
         hour = currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds()
 
         /* Compute the home indicator position and aspect */
-        var angle = Math.atan((latitude-start_latitude)/(longitude-start_longitude))-yaw/(180/Math.PI);
+        var angle = Math.atan2((longitude-start_longitude),(latitude-start_latitude))-yaw/(180/Math.PI);
         home_indicator.rotation = angle*180/Math.PI
         home_indicator.anchors.verticalCenterOffset = 150*Math.sin(angle);
         home_indicator.anchors.horizontalCenterOffset = 150*Math.cos(angle);
