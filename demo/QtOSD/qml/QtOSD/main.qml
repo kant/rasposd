@@ -424,6 +424,23 @@ Rectangle {
         home_indicator.rotation = angle*180/Math.PI
         home_indicator.anchors.verticalCenterOffset = 150*Math.sin(angle);
         home_indicator.anchors.horizontalCenterOffset = 150*Math.cos(angle);
+
+	if (start_longitude == "0.0") 
+	{
+	        start_longitude = parseFloat(data.getValue(FileIO.LONGITUDE))
+        	start_latitude = parseFloat(data.getValue(FileIO.LATITUDE))
+	}
+
+        if (start_longitude < "1000") // ssi start_longitude is nan 
+        {
+        }
+	else
+	{
+		start_longitude = parseFloat(data.getValue(FileIO.LONGITUDE))
+                start_latitude = parseFloat(data.getValue(FileIO.LATITUDE))
+	}
+
+
     }
 
     /* Labels for angle with north */
