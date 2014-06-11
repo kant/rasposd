@@ -55,6 +55,10 @@ class HMC5883L(object):
         self.obj_y = obj_y
         self.obj_z = obj_z
 
+        self.scaled_x = 0
+        self.scaled_y = 0
+        self.scaled_z = 0
+
         if reverse:
             self.reverse = -1
         else:
@@ -105,9 +109,9 @@ class HMC5883L(object):
             self.raw_y = self.get_axis(self.raw_data, self.obj_y)
             self.raw_z = self.get_axis(self.raw_data, self.obj_z)*self.reverse
 
-            self.scaled_x = self.raw_x * HMC5883L.GAIN_SCALE[self.gain][2]
-            self.scaled_y = self.raw_y * HMC5883L.GAIN_SCALE[self.gain][2]
-            self.scaled_z = self.raw_z * HMC5883L.GAIN_SCALE[self.gain][2]
+            self.scaled_x = 0.9 * self.scaled_x + 0.1 * self.raw_x * HMC5883L.GAIN_SCALE[self.gain][2]
+            self.scaled_y = 0.9 * self.scaled_y + 0.1 * self.raw_y * HMC5883L.GAIN_SCALE[self.gain][2]
+            self.scaled_z = 0.9 * self.scaled_z + 0.1 * self.raw_z * HMC5883L.GAIN_SCALE[self.gain][2]
         except IOError:
             print("Error reading compass, data ignored")
 
