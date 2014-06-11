@@ -174,7 +174,7 @@ class HMC5883L(object):
         minz = 0
         maxz = 0
 
-        for i in range(0,200):
+        for i in range(0,1000):
 
             raw_data = I2CUtils.i2c_read_block(self.bus, self.address, HMC5883L.DATA_START_BLOCK, 6)
             x_out = self.get_axis(raw_data, self.obj_x)
