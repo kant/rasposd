@@ -75,8 +75,8 @@ class BMP085(object):
 
         try:
             # Read raw temperature
-            I2CUtils.i2c_write_byte(self.bus, self.address, 0xF4, 0x2E)  # Tell the sensor to take a temperature reading
-            time.sleep(self.temp_wait_period)  # Wait for the conversion to take place
+            # I2CUtils.i2c_write_byte(self.bus, self.address, 0xF4, 0x2E)  # Tell the sensor to take a temperature reading
+            # time.sleep(self.temp_wait_period)  # Wait for the conversion to take place
             temp_raw = I2CUtils.i2c_read_word_signed(self.bus, self.address, 0xF6)
 
             # Calculate temperature
@@ -86,12 +86,16 @@ class BMP085(object):
             t = (b5 + 8) / 16
 
 
-            I2CUtils.i2c_write_byte(self.bus, self.address, 0xF4, 0x34 + (self.oss << 6))  # Tell the sensor to take a pressure reading
-            time.sleep(self.pressure_wait_period)  # Wait for the conversion to take place
+            # I2CUtils.i2c_write_byte(self.bus, self.address, 0xF4, 0x34 + (self.oss << 6))  # Tell the sensor to take a pressure reading
+            # time.sleep(self.pressure_wait_period)  # Wait for the conversion to take place
             pressure_raw = ((I2CUtils.i2c_read_byte(self.bus, self.address, 0xF6) << 16) \
                          + (I2CUtils.i2c_read_byte(self.bus, self.address, 0xF7) << 8) \
                          + (I2CUtils.i2c_read_byte(self.bus, self.address, 0xF8))) >> (8 - self.oss)
 
+
+            # on lance la mesure afin qu'elle soit prette pour l'iteration suivante
+            I2CUtils.i2c_write_byte(self.bus, self.address, 0xF4, 0x2E)  # Tell the sensor to take a temperature reading
+            I2CUtils.i2c_write_byte(self.bus, self.address, 0xF4, 0x34 + (self.oss << 6))  # Tell the sensor to take a pressure reading
 
             # Now calculate the pressure
             b6 = b5 - 4000
