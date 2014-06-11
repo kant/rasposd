@@ -421,6 +421,7 @@ Rectangle {
 
         /* Compute the home indicator position and aspect */
         var angle = Math.atan2((longitude-start_longitude),(latitude-start_latitude))-yaw/(180/Math.PI);
+        angle = angle * -1 /* du a la correction du Z??? */
         home_indicator.rotation = angle*180/Math.PI
         home_indicator.anchors.verticalCenterOffset = 150*Math.sin(angle);
         home_indicator.anchors.horizontalCenterOffset = 150*Math.cos(angle);
