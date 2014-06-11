@@ -84,12 +84,12 @@ class GY88(object):
         Apply a complementary filter to the Gyroscope and Accelerometer data
         '''
 
-        if abs(self.gyro_scaled_x) < 5:
+        if abs(self.gyro_scaled_x) < 10:
             new_pitch = GY88.K * (self.pitch + self.gyro_scaled_x * self.time_diff) + (GY88.K1 * current_x)
         else:
             new_pitch = self.pitch
 
-        if abs(self.gyro_scaled_y) < 5:
+        if abs(self.gyro_scaled_y) < 10:
             if self.accel_scaled_z < 0 and (self.last_accel_scaled_x < 0 <= self.accel_scaled_x or self.last_accel_scaled_x >= 0 > self.accel_scaled_x):
                 self.roll = -self.roll
 
