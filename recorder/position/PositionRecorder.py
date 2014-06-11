@@ -102,7 +102,7 @@ class PositionRecorder(threading.Thread):
 
             self.to_stdout = False
 
-            self.imu_read_freq = 25
+            self.imu_read_freq = 50
             self.obj_x = 'x'
             self.obj_y = 'y'
             self.obj_z = 'z'
@@ -112,7 +112,7 @@ class PositionRecorder(threading.Thread):
             self.path = 'records/'
             self.filename = 'data_pos.csv'
 
-            self.gps_read_freq = 4
+            self.gps_read_freq = 5
             self.wait_gps = True
             self.nb_min_sat = 3
             self.autoset_time = True
