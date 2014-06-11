@@ -22,7 +22,7 @@ class GY88(object):
         self.accel_scaled_x = 0
 
         self.accel_gyro = MPU6050(bus, gyro_address, name + "-gyroscope", obj_x, obj_y, obj_z, reverse, gyro_scale, accel_scale)
-        self.compass = HMC5883L(bus, compass_address, name + "-compass", rate=5,
+        self.compass = HMC5883L(bus, compass_address, name + "-compass", rate=6,
                                 x_offset=compass_calibration[0],
                                 y_offset=compass_calibration[1],
                                 z_offset=compass_calibration[2],
