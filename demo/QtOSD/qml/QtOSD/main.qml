@@ -75,6 +75,16 @@ Rectangle {
         source: "/home/pi/pilotage-fpv/Arial.ttf"
     }
 
+    Rectangle {
+        id: hide_bg_left
+
+        width: 130
+        height: 960
+        anchors.centerIn: parent
+        anchors.horizontalCenterOffset: -380
+        color: "black"
+    }
+
     Text {
         id: lblTemperature
         text: temperature  + "°C"
@@ -235,6 +245,49 @@ Rectangle {
         horizontalAlignment: Text.AlignRight
     }
 
+    Rectangle  {
+        id: centre_cercle
+
+        /* Position */
+        width: 50
+        height: 50
+        radius: 50
+        anchors.centerIn: parent
+
+        /* Aspect */
+        color: "#00000000"
+        border.color: "#A0FF0000"
+        border.width: 3
+    }
+
+    Rectangle  {
+        id: centre_horizontal
+
+        /* Position */
+        width: 80
+        height: 2
+        anchors.centerIn: parent
+
+        /* Aspect */
+        color: "#00000000"
+        border.color: "#A0FF0000"
+        border.width: 3
+    }
+
+    Rectangle  {
+        id: centre_vertical
+
+        /* Position */
+        width: 2
+        height: 50 
+        anchors.centerIn: parent
+
+        /* Aspect */
+        color: "#00000000"
+        border.color: "#A0FF0000"
+        border.width: 3
+    }
+
 
     Rectangle {
         id: horizon
@@ -245,7 +298,7 @@ Rectangle {
         anchors.centerIn: parent
         rotation: roll
 
-        anchors.verticalCenterOffset: horizon_voffset
+        anchors.verticalCenterOffset: -1 * horizon_voffset
 
         /* Aspect */
         color: "#80008000"
@@ -268,13 +321,11 @@ Rectangle {
         border.width: 1
     }
 
-
-
     Ruler {
         id: altitude_ruler
 
         /* Position */
-        width: 30
+        width: 10
         height: 300
 
         anchors.centerIn: parent
@@ -294,7 +345,7 @@ Rectangle {
         id: velocity_ruler
 
         /* Position */
-        width: 30
+        width: 10
         height: 300
 
         anchors.centerIn: parent
@@ -317,7 +368,7 @@ Rectangle {
         id: direction_ruler
 
         /* Position */
-        width: 20
+        width: 5
         height: 500
 
         anchors.centerIn: parent
@@ -329,11 +380,11 @@ Rectangle {
         /* Parameters */
         property bool reversed: true
 
-        property double value: yaw
+        property double value: -1 * yaw
 
         property int nb_big_slots: 5
-        property int nb_small_slots: 1
-        property int step: 45
+        property int nb_small_slots: 10
+        property int step: 15
         property double cycle: 360
 
         property variant labels
