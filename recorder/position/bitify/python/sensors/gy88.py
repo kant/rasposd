@@ -70,8 +70,13 @@ class GY88(object):
         self.accel_scaled_z = self.accel_gyro.read_scaled_accel_z()
 
         self.temperature, self.pressure = self.barometer.calculate()
+      
 
-        self.pitch, self.roll, self.yaw = self.compute_pitch_roll_yaw()
+        '''
+        only for valid data
+        '''
+        if (abs(self.gyro_scaled_x) < 5) and (abs(self.gyro_scaled_y) < 5) and (abs(self.gyro_scaled_z) < 5) and ( ((self.accel_scaled_x * self.accel_scaled_x) + (self.accel_scaled_y * self.accel_scaled_y) + (self.accel_scaled_z * self.accel_scaled_z)) < 10 ):
+            self.pitch, self.roll, self.yaw = self.compute_pitch_roll_yaw()
 
         return self.mesure_time,\
                self.pitch, self.roll, self.yaw, \
@@ -84,18 +89,12 @@ class GY88(object):
         Apply a complementary filter to the Gyroscope and Accelerometer data
         '''
 
-        if abs(self.gyro_scaled_x) < 5:
-            new_pitch = GY88.K * (self.pitch + self.gyro_scaled_x * self.time_diff) + (GY88.K1 * current_x)
-        else:
-            new_pitch = self.pitch
+        new_pitch = GY88.K * (self.pitch + self.gyro_scaled_x * self.time_diff) + (GY88.K1 * current_x)
+        if self.accel_scaled_z < 0 and (self.last_accel_scaled_x < 0 <= self.accel_scaled_x or self.last_accel_scaled_x >= 0 > self.accel_scaled_x):
+            self.roll = -self.roll
 
-        if abs(self.gyro_scaled_y) < 5:
-            if self.accel_scaled_z < 0 and (self.last_accel_scaled_x < 0 <= self.accel_scaled_x or self.last_accel_scaled_x >= 0 > self.accel_scaled_x):
-                self.roll = -self.roll
+        new_roll = GY88.K * (self.roll + self.gyro_scaled_y * self.time_diff) + (GY88.K1 * current_y)
 
-            new_roll = GY88.K * (self.roll + self.gyro_scaled_y * self.time_diff) + (GY88.K1 * current_y)
-        else:
-            new_roll = self.roll
 
         return new_pitch, new_roll
 
