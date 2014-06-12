@@ -265,7 +265,7 @@ Rectangle {
 
         /* Position */
         width: 80
-        height: 2
+        height: 3
         anchors.centerIn: parent
 
         /* Aspect */
@@ -278,7 +278,7 @@ Rectangle {
         id: centre_vertical
 
         /* Position */
-        width: 2
+        width: 3
         height: 50 
         anchors.centerIn: parent
 
@@ -296,7 +296,7 @@ Rectangle {
         width: 300
         height:4
         anchors.centerIn: parent
-        rotation: roll
+        /* rotation: roll */
 
         anchors.verticalCenterOffset: -1 * horizon_voffset
 
@@ -304,9 +304,23 @@ Rectangle {
         color: "#80008000"
         border.color: "#C0FFFFFF"
         border.width: 1
+
+	Rectangle {
+            id: horizon_mark
+
+            width: 4
+            height: 16
+            anchors.centerIn: parent
+
+            anchors.verticalCenterOffset: -8
+
+            color: "#80008000"
+            border.color: "#C0FFFFFF"
+            border.width: 1
+        }
     }
 
-
+    
     Rectangle {
         id: home_indicator
 
@@ -401,6 +415,7 @@ Rectangle {
         /* Compute horizon aspect */
         horizon.rotation = parseFloat(data.getValue(FileIO.ROLL))
         horizon_voffset = -(Math.atan(parseFloat(data.getValue(FileIO.PITCH))/40)*horizon_max_voffset)
+        /* horizon_mark.rotation = parseFloat(data.getValue(FileIO.ROLL)) */
 
         /* Rulers values */
         speed = parseFloat(data.getValue(FileIO.SPEED));

@@ -44,7 +44,7 @@ Rectangle {
        anchors.verticalCenter: parent.verticalCenter
        anchors.horizontalCenter: parent.horizontalCenter
 
-       anchors.horizontalCenterOffset: -21
+       anchors.horizontalCenterOffset: -10
     }
  
     /* Step lines */
