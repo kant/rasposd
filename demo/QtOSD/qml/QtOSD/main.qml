@@ -373,7 +373,7 @@ Rectangle {
         property int nb_big_slots: 5
         property int nb_small_slots: 1
 
-        property int step: 5
+        property int step: 1
         property bool reversed: true
 
     }
