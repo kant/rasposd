@@ -157,9 +157,10 @@ class MPU6050(object):
         '''
         Read the raw data from the sensor, scale it appropriately and store for later use
         '''
+
         self.raw_gyro_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.GYRO_START_BLOCK, 6)
         self.raw_accel_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.ACCEL_START_BLOCK, 6)
-        self.raw_temp_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.TEMP_START_BLOCK, 2)
+        # self.raw_temp_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.TEMP_START_BLOCK, 2)
 
 
         self.gyro_raw_x = self.get_gyro_axis(self.obj_x)*self.x_correction(self.obj_x)
@@ -170,14 +171,14 @@ class MPU6050(object):
         self.accel_raw_y = self.get_accel_axis(self.obj_y)
         self.accel_raw_z = self.get_accel_axis(self.obj_z)*self.reverse
 
-        self.raw_temp = I2CUtils.twos_compliment(self.raw_temp_data[MPU6050.TEMP_OUT_H], self.raw_temp_data[MPU6050.TEMP_OUT_L])
+        # self.raw_temp = I2CUtils.twos_compliment(self.raw_temp_data[MPU6050.TEMP_OUT_H], self.raw_temp_data[MPU6050.TEMP_OUT_L])
 
         # We convert these to radians for consistency and so we can easily combine later in the filter
         self.gyro_scaled_x = math.radians(self.gyro_raw_x / MPU6050.GYRO_SCALE[self.fs_scale][1]) 
         self.gyro_scaled_y = math.radians(self.gyro_raw_y / MPU6050.GYRO_SCALE[self.fs_scale][1]) 
         self.gyro_scaled_z = math.radians(self.gyro_raw_z / MPU6050.GYRO_SCALE[self.fs_scale][1]) 
 
-        self.scaled_temp = self.raw_temp / 340 + 36.53
+        # self.scaled_temp = self.raw_temp / 340 + 36.53
 
         self.accel_scaled_x = self.accel_raw_x / MPU6050.ACCEL_SCALE[self.afs_scale][1]
         self.accel_scaled_y = self.accel_raw_y / MPU6050.ACCEL_SCALE[self.afs_scale][1]
