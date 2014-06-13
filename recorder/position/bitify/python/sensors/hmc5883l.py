@@ -151,7 +151,8 @@ class HMC5883L(object):
         '''
         Calculate a bearing taking in to account the current pitch and roll of the device as supplied as parameters
         '''
-        self.read_raw_data()
+        # self.read_raw_data()
+	# we already have new data
         # print("magnetique _" + str(self.read_scaled_x()) + "_"+ str(self.read_scaled_y()) + "_" + str(self.read_scaled_z()) ) 
         cos_pitch = (math.cos(pitch))
         sin_pitch = (math.sin(pitch))
