@@ -52,7 +52,7 @@ class BMP085(object):
         else:
             return val        
             
-    def calculate(self):
+    def calculate_old(self):
         
         # The sensor has a block of factory set calibration values we need to read
         # these are then used in a length calculation to get the temperature and pressure
@@ -126,7 +126,8 @@ class BMP085(object):
 
 
         return(t / 10., p / 100.)
-
+    def calculate(self):
+        return(0, 0)
     def read_pressure(self):
         (temperature, pressure) = self.calculate()
         return pressure 
