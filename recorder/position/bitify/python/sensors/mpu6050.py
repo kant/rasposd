@@ -114,13 +114,15 @@ class MPU6050(object):
 
 
     def hw_init(self):
-        # We need to wake up the module as it start in sleep mode
-        I2CUtils.i2c_write_byte(self.bus, self.address, MPU6050.PWR_MGMT_1, 0)
-        # Set the gryo resolution
-        I2CUtils.i2c_write_byte(self.bus, self.address, MPU6050.FS_SEL, self.fs_scale << 3)
-        # Set the accelerometer resolution
-        I2CUtils.i2c_write_byte(self.bus, self.address, MPU6050.AFS_SEL, self.afs_scale << 3)
-
+        try:
+            # We need to wake up the module as it start in sleep mode
+            I2CUtils.i2c_write_byte(self.bus, self.address, MPU6050.PWR_MGMT_1, 0)
+            # Set the gryo resolution
+            I2CUtils.i2c_write_byte(self.bus, self.address, MPU6050.FS_SEL, self.fs_scale << 3)
+            # Set the accelerometer resolution
+            I2CUtils.i2c_write_byte(self.bus, self.address, MPU6050.AFS_SEL, self.afs_scale << 3)
+        except IOError:
+            print("erreur I2C init gyro")
 
     def get_gyro_axis(self, axis):
         return {
@@ -157,37 +159,40 @@ class MPU6050(object):
         '''
         Read the raw data from the sensor, scale it appropriately and store for later use
         '''
+        try:
+            self.raw_gyro_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.GYRO_START_BLOCK, 6)
+            self.raw_accel_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.ACCEL_START_BLOCK, 6)
+            # self.raw_temp_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.TEMP_START_BLOCK, 2)
 
-        self.raw_gyro_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.GYRO_START_BLOCK, 6)
-        self.raw_accel_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.ACCEL_START_BLOCK, 6)
-        # self.raw_temp_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.TEMP_START_BLOCK, 2)
 
-
-        self.gyro_raw_x = self.get_gyro_axis(self.obj_x)*self.x_correction(self.obj_x)
-        self.gyro_raw_y = self.get_gyro_axis(self.obj_y)*self.y_correction(self.obj_y)
-        self.gyro_raw_z = self.get_gyro_axis(self.obj_z)*self.z_correction(self.obj_z)*self.reverse
+            self.gyro_raw_x = self.get_gyro_axis(self.obj_x)*self.x_correction(self.obj_x)
+            self.gyro_raw_y = self.get_gyro_axis(self.obj_y)*self.y_correction(self.obj_y)
+            self.gyro_raw_z = self.get_gyro_axis(self.obj_z)*self.z_correction(self.obj_z)*self.reverse
         
-        self.accel_raw_x = self.get_accel_axis(self.obj_x)*self.reverse
-        self.accel_raw_y = self.get_accel_axis(self.obj_y)
-        self.accel_raw_z = self.get_accel_axis(self.obj_z)*self.reverse
+            self.accel_raw_x = self.get_accel_axis(self.obj_x)*self.reverse
+            self.accel_raw_y = self.get_accel_axis(self.obj_y)
+            self.accel_raw_z = self.get_accel_axis(self.obj_z)*self.reverse
 
-        # self.raw_temp = I2CUtils.twos_compliment(self.raw_temp_data[MPU6050.TEMP_OUT_H], self.raw_temp_data[MPU6050.TEMP_OUT_L])
+            # self.raw_temp = I2CUtils.twos_compliment(self.raw_temp_data[MPU6050.TEMP_OUT_H], self.raw_temp_data[MPU6050.TEMP_OUT_L])
 
-        # We convert these to radians for consistency and so we can easily combine later in the filter
-        self.gyro_scaled_x = math.radians(self.gyro_raw_x / MPU6050.GYRO_SCALE[self.fs_scale][1]) 
-        self.gyro_scaled_y = math.radians(self.gyro_raw_y / MPU6050.GYRO_SCALE[self.fs_scale][1]) 
-        self.gyro_scaled_z = math.radians(self.gyro_raw_z / MPU6050.GYRO_SCALE[self.fs_scale][1]) 
+            # We convert these to radians for consistency and so we can easily combine later in the filter
+            self.gyro_scaled_x = math.radians(self.gyro_raw_x / MPU6050.GYRO_SCALE[self.fs_scale][1]) 
+            self.gyro_scaled_y = math.radians(self.gyro_raw_y / MPU6050.GYRO_SCALE[self.fs_scale][1]) 
+            self.gyro_scaled_z = math.radians(self.gyro_raw_z / MPU6050.GYRO_SCALE[self.fs_scale][1]) 
 
-        # self.scaled_temp = self.raw_temp / 340 + 36.53
+            # self.scaled_temp = self.raw_temp / 340 + 36.53
 
-        self.accel_scaled_x = self.accel_raw_x / MPU6050.ACCEL_SCALE[self.afs_scale][1]
-        self.accel_scaled_y = self.accel_raw_y / MPU6050.ACCEL_SCALE[self.afs_scale][1]
-        self.accel_scaled_z = self.accel_raw_z / MPU6050.ACCEL_SCALE[self.afs_scale][1]
+            self.accel_scaled_x = self.accel_raw_x / MPU6050.ACCEL_SCALE[self.afs_scale][1]
+            self.accel_scaled_y = self.accel_raw_y / MPU6050.ACCEL_SCALE[self.afs_scale][1]
+            self.accel_scaled_z = self.accel_raw_z / MPU6050.ACCEL_SCALE[self.afs_scale][1]
         
-        self.pitch = self.read_x_rotation(self.read_scaled_accel_x(),self.read_scaled_accel_y(),self.read_scaled_accel_z())
-        self.roll =  self.read_y_rotation(self.read_scaled_accel_x(),self.read_scaled_accel_y(),self.read_scaled_accel_z())
+            self.pitch = self.read_x_rotation(self.read_scaled_accel_x(),self.read_scaled_accel_y(),self.read_scaled_accel_z())
+            self.roll =  self.read_y_rotation(self.read_scaled_accel_x(),self.read_scaled_accel_y(),self.read_scaled_accel_z())
 
-        #print(str(self.pitch) + " - " + str(self.roll))
+            #print(str(self.pitch) + " - " + str(self.roll))
+        except IOError:
+            print("I2C read gyro failed")
+            return
         
     def distance(self, x, y):
         '''Returns the distance between two point in 2d space'''
