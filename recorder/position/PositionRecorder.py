@@ -166,14 +166,15 @@ class PositionRecorder(threading.Thread):
         time_offset = time.time()-self.gps_time
 
         while self.running:
+            sleep(0.02) # main loop timer
 
             # Read data from sensors
             imu_new = self.imu.is_new_data()
             gps_new = self.gps.is_new_data()
 
             # If we got no new data, sleep a bit so we don't overload CPU
-            if not imu_new and not gps_new:
-                sleep(0.01)
+            if (not imu_new) and (not gps_new):
+                # print("no_new_data_posrecorder")
                 continue
 
             if imu_new:
@@ -236,9 +237,13 @@ class PositionRecorder(threading.Thread):
                         else:
                             norm_correct = self.pitch/90-4
 
-                    self.speed += (-(self.accel_scaled_y-norm_correct)*imu_time_delta)*MPS_TO_KPH
+                    # self.speed += (-(self.accel_scaled_y-norm_correct)*imu_time_delta)*MPS_TO_KPH
+                    # desactive cette correction 
 
-                    self.altitude = self.gps_data.altitude + (self.imu_data.pressure-self.pressure_ref)*8.7
+                    # self.altitude = self.gps_data.altitude + (self.imu_data.pressure-self.pressure_ref)*8.7
+                    # a cause de la pression qui n'est pas stable, on prend juste l'altitude du GPS
+                    self.altitude = self.gps_data.altitude 
+
 
             # Write data line to CSV file
             self.writer.writerow([
