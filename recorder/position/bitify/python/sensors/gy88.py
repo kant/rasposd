@@ -1,4 +1,6 @@
+
 import time
+from time import sleep
 
 from position.bitify.python.sensors.mpu6050 import MPU6050
 from position.bitify.python.sensors.hmc5883l import HMC5883L
@@ -44,39 +46,67 @@ class GY88(object):
         Return pitch and roll in radians and the scaled x, y & z values from the gyroscope and accelerometer
         '''
 
-        self.mesure_time = time.time()
-        self.time_diff = self.mesure_time - self.last_time
-        self.last_time = self.mesure_time
+        loop_condition = True
+        while loop_condition:
 
-        self.accel_gyro.read_raw_data()
-        self.compass.read_raw_data()
+            # print("loop_all_start")
+            self.mesure_time = time.time()
+            self.time_diff = self.mesure_time - self.last_time
+            self.last_time = self.mesure_time
 
-        self.gyro_raw_x = self.accel_gyro.read_raw_gyro_x()
-        self.gyro_raw_y = self.accel_gyro.read_raw_gyro_y()
-        self.gyro_raw_z = self.accel_gyro.read_raw_gyro_z()
+            self.accel_gyro.read_raw_data()
+            self.compass.read_raw_data()
 
-        self.accel_raw_x = self.accel_gyro.read_raw_accel_x()
-        self.accel_raw_y = self.accel_gyro.read_raw_accel_y()
-        self.accel_raw_z = self.accel_gyro.read_raw_accel_z()
+            self.gyro_raw_x = self.accel_gyro.read_raw_gyro_x()
+            self.gyro_raw_y = self.accel_gyro.read_raw_gyro_y()
+            self.gyro_raw_z = self.accel_gyro.read_raw_gyro_z()
 
-        self.gyro_scaled_x = self.accel_gyro.read_scaled_gyro_x()
-        self.gyro_scaled_y = self.accel_gyro.read_scaled_gyro_y()
-        self.gyro_scaled_z = self.accel_gyro.read_scaled_gyro_z()
+            self.accel_raw_x = self.accel_gyro.read_raw_accel_x()
+            self.accel_raw_y = self.accel_gyro.read_raw_accel_y()
+            self.accel_raw_z = self.accel_gyro.read_raw_accel_z()
 
-        self.last_accel_scaled_x = self.accel_scaled_x
+            self.gyro_scaled_x = self.accel_gyro.read_scaled_gyro_x()
+            self.gyro_scaled_y = self.accel_gyro.read_scaled_gyro_y()
+            self.gyro_scaled_z = self.accel_gyro.read_scaled_gyro_z()
 
-        self.accel_scaled_x = self.accel_gyro.read_scaled_accel_x()
-        self.accel_scaled_y = self.accel_gyro.read_scaled_accel_y()
-        self.accel_scaled_z = self.accel_gyro.read_scaled_accel_z()
+            self.last_accel_scaled_x = self.accel_scaled_x
 
-        self.temperature, self.pressure = self.barometer.calculate()
+            self.accel_scaled_x = self.accel_gyro.read_scaled_accel_x()
+            self.accel_scaled_y = self.accel_gyro.read_scaled_accel_y()
+            self.accel_scaled_z = self.accel_gyro.read_scaled_accel_z()
+
+            self.temperature, self.pressure = self.barometer.calculate()
       
+            # print("data " + str(self.gyro_scaled_x) + "_ " + str(self.gyro_scaled_y) + "_ " + str(self.gyro_scaled_y) + "_ " + str(self.accel_scaled_x))
+            if ((abs(self.gyro_scaled_x) + abs(self.gyro_scaled_y) + abs(self.gyro_scaled_z)) < 15) and ((self.accel_scaled_x * self.accel_scaled_x) + (self.accel_scaled_y * self.accel_scaled_y) + (self.accel_scaled_z * self.accel_scaled_z)) < 50:
+                loop_condition = False
+            else:
+		print("erreur_data_gy88")
+                self.accel_gyro.hw_init()
+                # sleep(1)
+	        loop_condition = True
+                # start data aquisition if data are not valid
 
-        '''
-        only for valid data
-        '''
-        if (abs(self.gyro_scaled_x) < 5) and (abs(self.gyro_scaled_y) < 5) and (abs(self.gyro_scaled_z) < 5) and ( ((self.accel_scaled_x * self.accel_scaled_x) + (self.accel_scaled_y * self.accel_scaled_y) + (self.accel_scaled_z * self.accel_scaled_z)) < 10 ):
-            self.pitch, self.roll, self.yaw = self.compute_pitch_roll_yaw()
+        # print("data " + str(self.gyro_scaled_x) + "_ " + str(self.gyro_scaled_y) + "_ " + str(self.gyro_scaled_y) + "_ " + str(self.accel_scaled_x) +" _ " + str(self.accel_scaled_y) )
+
+        # print("end_loop_all---------------")
+        self.pitch, self.roll, self.yaw = self.compute_pitch_roll_yaw()
+	# print("data _ " + str(self.pitch) + " _ " + str(self.roll) )
+
+
+#        print("all : " + str(self.mesure_time) + (" - ") + \
+#               str(self.pitch         ) + (" - ") + \
+#               str(self.roll          ) + (" - ") + \
+#               str(self.yaw           ) + (" - ") + \
+#               str(self.gyro_scaled_x ) + (" - ") + \
+#               str(self.gyro_scaled_y ) + (" - ") + \
+#               str(self.gyro_scaled_z ) + (" - ") + \
+#               str(self.accel_scaled_x) + (" - ") + \
+#               str(self.accel_scaled_y) + (" - ") + \
+#               str(self.accel_scaled_z) + (" - ") + \
+#               str(self.temperature   ) + (" - ") + \
+#               str(self.pressure      ) )
+
 
         return self.mesure_time,\
                self.pitch, self.roll, self.yaw, \
@@ -92,6 +122,7 @@ class GY88(object):
         new_pitch = GY88.K * (self.pitch + self.gyro_scaled_x * self.time_diff) + (GY88.K1 * current_x)
         if self.accel_scaled_z < 0 and (self.last_accel_scaled_x < 0 <= self.accel_scaled_x or self.last_accel_scaled_x >= 0 > self.accel_scaled_x):
             self.roll = -self.roll
+            print("inv roll")
 
         new_roll = GY88.K * (self.roll + self.gyro_scaled_y * self.time_diff) + (GY88.K1 * current_y)
 
