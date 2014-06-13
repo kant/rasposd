@@ -120,9 +120,12 @@ class GY88(object):
         '''
 
         new_pitch = GY88.K * (self.pitch + self.gyro_scaled_x * self.time_diff) + (GY88.K1 * current_x)
-        if self.accel_scaled_z < 0 and (self.last_accel_scaled_x < 0 <= self.accel_scaled_x or self.last_accel_scaled_x >= 0 > self.accel_scaled_x):
-            self.roll = -self.roll
-            # print("inv roll")
+
+	if self.roll - current_y > 3.14:
+            current_y += 2*3.1415926;
+	if self.roll - current_y < -3.14:
+            current_y -= 2*3.1415926;
+	# for the filter to attract curent value to the shortest direction
 
         new_roll = GY88.K * (self.roll + self.gyro_scaled_y * self.time_diff) + (GY88.K1 * current_y)
 
