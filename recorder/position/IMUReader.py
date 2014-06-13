@@ -75,7 +75,8 @@ class ImuReader(threading.Thread):
             self.data_set.set(self.imu.read_all())
             self.new = True
 
-            time.sleep(self.period)
+            # time.sleep(self.period)
+            time.sleep(0.005) # boucle principal de recuperation des capteur en I2C
 
     def stop(self):
         self.running = False
