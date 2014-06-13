@@ -62,7 +62,7 @@ Rectangle {
     /*
      * Change behavior and datas
      */
-    property int refresh_interval: 20
+    property int refresh_interval: 10
 
     /* Use this to entirely replay a CSV file */
     property bool sim: false
@@ -85,17 +85,15 @@ Rectangle {
         color: "black"
     }
 
+    /*
     Text {
         id: lblTemperature
         text: temperature  + "°C"
 
-        /* Position */
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.margins: 10
 
-
-        /* Aspect */
         font.pointSize: font_size
         font.family: text_font
 
@@ -104,7 +102,8 @@ Rectangle {
         styleColor: text_outline_color
 
         horizontalAlignment: Text.AlignRight
-    }
+    } 
+    */
 
     Text {
         id: lblLongitude
@@ -188,7 +187,7 @@ Rectangle {
 
         /* Position */
         anchors.right: lblDateSep.left
-        anchors.bottom: parent.bottom
+        anchors.top: parent.top
         anchors.margins: 10
 
 
@@ -209,7 +208,7 @@ Rectangle {
 
         /* Position */
         anchors.right: lblHeure.left
-        anchors.bottom: parent.bottom
+        anchors.top: parent.top
         anchors.margins: 10
 
 
@@ -230,7 +229,7 @@ Rectangle {
 
         /* Position */
         anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        anchors.top: parent.top
         anchors.margins: 10
 
 
@@ -325,8 +324,8 @@ Rectangle {
         id: home_indicator
 
         /* Position */
-        width: 20
-        height:4
+        width: 15
+        height:8
         anchors.centerIn: parent
 
         /* Aspect */
@@ -438,8 +437,8 @@ Rectangle {
         var angle = Math.atan2((longitude-start_longitude),(latitude-start_latitude))-yaw/(180/Math.PI);
         angle = angle * -1 /* du a la correction du Z??? */
         home_indicator.rotation = angle*180/Math.PI
-        home_indicator.anchors.verticalCenterOffset = 150*Math.sin(angle);
-        home_indicator.anchors.horizontalCenterOffset = 150*Math.cos(angle);
+        home_indicator.anchors.verticalCenterOffset = 70*Math.sin(angle);
+        home_indicator.anchors.horizontalCenterOffset = 70*Math.cos(angle);
 
 	if (start_longitude == "0.0") 
 	{
