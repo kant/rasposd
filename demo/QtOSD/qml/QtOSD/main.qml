@@ -62,7 +62,7 @@ Rectangle {
     /*
      * Change behavior and datas
      */
-    property int refresh_interval: 10
+    property int refresh_interval: 5 /* full speed! */
 
     /* Use this to entirely replay a CSV file */
     property bool sim: false
