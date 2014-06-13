@@ -36,7 +36,7 @@ class HMC5883L(object):
                     7 : [ 8.10, 230, 4.35 ]
                  }
 
-    def __init__(self, bus, address, name, samples=3, rate=4, gain=1, sampling_mode=0,
+    def __init__(self, bus, address, name, samples=3, rate=6, gain=1, sampling_mode=0,
                  x_offset=0, y_offset=0, z_offset=0,
                  obj_x='x', obj_y='y', obj_z='z',
                  reverse=False):
@@ -46,6 +46,7 @@ class HMC5883L(object):
         self.samples = samples
         self.gain = gain
         self.sampling_mode = sampling_mode
+	self.rate = rate
         
         self.x_offset = x_offset
         self.y_offset = y_offset
@@ -58,6 +59,8 @@ class HMC5883L(object):
         self.scaled_x = 0
         self.scaled_y = 0
         self.scaled_z = 0
+	
+	self.init = 10
 
         if reverse:
             self.reverse = -1
@@ -109,9 +112,26 @@ class HMC5883L(object):
             self.raw_y = self.get_axis(self.raw_data, self.obj_y)
             self.raw_z = self.get_axis(self.raw_data, self.obj_z)*self.reverse
 
-            self.scaled_x = 0.9 * self.scaled_x + 0.1 * self.raw_x * HMC5883L.GAIN_SCALE[self.gain][2]
-            self.scaled_y = 0.9 * self.scaled_y + 0.1 * self.raw_y * HMC5883L.GAIN_SCALE[self.gain][2]
-            self.scaled_z = 0.9 * self.scaled_z + 0.1 * self.raw_z * HMC5883L.GAIN_SCALE[self.gain][2]
+            self.distance = abs(self.scaled_x - self.raw_x * HMC5883L.GAIN_SCALE[self.gain][2])
+            self.distance += abs(self.scaled_y - self.raw_y * HMC5883L.GAIN_SCALE[self.gain][2])
+            self.distance += abs(self.scaled_z - self.raw_z * HMC5883L.GAIN_SCALE[self.gain][2])
+            # print("magnetic_distance _ " + str(self.distance) )
+            # print("magnetique _" + str(self.raw_x) + "_"+ str(self.raw_y) + "_" + str(self.raw_z) ) 
+
+            if (self.distance < 500) or (self.init > 0):
+		self.init -= 1
+		if self.init < 0:
+                    self.init = 0
+                # print("ok")
+                # add a filter on the datas
+                self.scaled_x = 0.9 * self.scaled_x + 0.1 * self.raw_x * HMC5883L.GAIN_SCALE[self.gain][2]
+                self.scaled_y = 0.9 * self.scaled_y + 0.1 * self.raw_y * HMC5883L.GAIN_SCALE[self.gain][2]
+                self.scaled_z = 0.9 * self.scaled_z + 0.1 * self.raw_z * HMC5883L.GAIN_SCALE[self.gain][2]
+            else: # les donnees sont corrompu
+                self.hw_init(self.samples, self.rate, self.gain)
+		# time.sleep(1)
+		self.init = 10
+
         except IOError:
             print("Error reading compass, data ignored")
 
@@ -132,6 +152,7 @@ class HMC5883L(object):
         Calculate a bearing taking in to account the current pitch and roll of the device as supplied as parameters
         '''
         self.read_raw_data()
+        # print("magnetique _" + str(self.read_scaled_x()) + "_"+ str(self.read_scaled_y()) + "_" + str(self.read_scaled_z()) ) 
         cos_pitch = (math.cos(pitch))
         sin_pitch = (math.sin(pitch))
         
