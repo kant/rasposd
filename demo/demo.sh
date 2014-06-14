@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# put gps to 10Hz
+python gps_full_speed.py
+
 echo "Binding gpsd to GPS device"
 sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock
 
