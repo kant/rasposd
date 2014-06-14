@@ -15,6 +15,7 @@ import camera.VideoRecorder as VideoRecorder
 # Define record folder and links
 subdir = "record_" + datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S') + "/"
 directory = "records/" + subdir
+directory2 = "video/video_" + datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M-%S') + ".h264"
 
 if not os.path.exists(directory):
     os.makedirs(directory)
@@ -43,7 +44,7 @@ else:
 
 
 pos = PositionRecorder.PositionRecorder(subdir, magnetometer_calibration)
-video = VideoRecorder.VideoRecorder(directory + "video.h264")
+video = VideoRecorder.VideoRecorder(directory2)
 
 try:
     print "Starting position recorder"
