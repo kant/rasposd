@@ -86,7 +86,7 @@ class GpsReader(threading.Thread):
             if self.new_data_set.is_valid():
                 self.data_set = self.new_data_set
                 self.new = True
-		print("new gps data")
+		# print("new gps data")
 
             # time.sleep(self.period)
             time.sleep(0.05)
