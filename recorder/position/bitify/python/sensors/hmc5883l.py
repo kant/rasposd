@@ -225,6 +225,7 @@ class HMC5883L(object):
             if z_out > maxz:
                 maxz=z_out
 
+            print("X Y Z: " + str(x_out) + " _ " + str(y_out) + " _ " + str(z_out) )
 
             #print x_out, y_out, (x_out * scale), (y_out * scale)
             time.sleep(0.1)
