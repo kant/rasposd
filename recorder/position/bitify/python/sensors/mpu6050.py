@@ -165,9 +165,9 @@ class MPU6050(object):
             # self.raw_temp_data = I2CUtils.i2c_read_block(self.bus, self.address, MPU6050.TEMP_START_BLOCK, 2)
 
 
-            self.gyro_raw_x = self.get_gyro_axis(self.obj_x)*self.x_correction(self.obj_x)
-            self.gyro_raw_y = self.get_gyro_axis(self.obj_y)*self.y_correction(self.obj_y)
-            self.gyro_raw_z = self.get_gyro_axis(self.obj_z)*self.z_correction(self.obj_z)*self.reverse
+            self.gyro_raw_x = (self.get_gyro_axis(self.obj_x)-66)*self.x_correction(self.obj_x)
+            self.gyro_raw_y = (self.get_gyro_axis(self.obj_y)+28)*self.y_correction(self.obj_y)
+            self.gyro_raw_z = (self.get_gyro_axis(self.obj_z)-33)*self.z_correction(self.obj_z)*self.reverse
         
             self.accel_raw_x = self.get_accel_axis(self.obj_x)*self.reverse
             self.accel_raw_y = self.get_accel_axis(self.obj_y)
@@ -189,6 +189,8 @@ class MPU6050(object):
             self.pitch = self.read_x_rotation(self.read_scaled_accel_x(),self.read_scaled_accel_y(),self.read_scaled_accel_z())
             self.roll =  self.read_y_rotation(self.read_scaled_accel_x(),self.read_scaled_accel_y(),self.read_scaled_accel_z())
 
+            #print("gyro " + str(self.get_gyro_axis(self.obj_x)) + "_" + str(self.get_gyro_axis(self.obj_y)) + "_" + str(self.get_gyro_axis(self.obj_z)) )
+            # print("gyro " + str(self.gyro_raw_x) + "_" + str(self.gyro_raw_y) + "_" + str(self.gyro_raw_z) )
             #print(str(self.pitch) + " - " + str(self.roll))
         except IOError:
             print("I2C read gyro failed")
