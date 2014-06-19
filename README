@@ -1,6 +1,12 @@
- Raspberry Pi embarquée pour pilotage à distance
+On Screen Display for Raspberry Pi and various sensors.
 
- QtOSD : OSD en Qt et QML
- demo : binaires de démonstration avc QML et scripts
- libosd : anciennes version de l'OSD et essais (non nettoyé)
- recorder : enregistreur de données IMU+GPS et vidéo
+This project aim using a Raspberry pi for On screen Display, in FPV context for controling a RC plane model.
+
+This project was made by Christian Muller for his internship during his Master degree on the he-arc ingenering school, under David Grunenwald supervision and Cyrille Henry mandate.
+
+demonstration video:
+http://vimeo.com/98249321
+
+ QtOSD : OSD using Qt and QML
+ demo : main software
+ recorder : get sensors and video data
