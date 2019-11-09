@@ -4,7 +4,7 @@ On Screen Display for Raspberry Pi and various sensors.
 This project aims at using a Raspberry pi for On Screen Display, in FPV context for controlling a RC plane model.
 
 
-This software was developped by Christian Müller in the framework of his Master degree in software engineering at the HES-SO (http://www.hes-so.ch/en/master-engineering-610.html), under David Grunenwald supervision and Cyrille Henry mandate.
+This software was developed by Christian Müller in the framework of his Master degree in software engineering at the HES-SO (http://www.hes-so.ch/en/master-engineering-610.html), under David Grunenwald supervision and Cyrille Henry mandate.
 
 
 demonstration video:
